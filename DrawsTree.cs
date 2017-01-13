@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FantasyTennis
 {
-    class DrawsTree
+    public class DrawsTree
     {
         public MatchNode root;
 

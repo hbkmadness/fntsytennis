@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FantasyTennis
 {
-    class MatchNode
+    public class MatchNode
     {
         public MatchNode parent = null;
         public MatchNode leftChild = null;

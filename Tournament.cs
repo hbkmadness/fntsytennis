@@ -42,7 +42,7 @@ namespace FantasyTennis
             }
             else if (Tournament.statsCache.ContainsKey(key2))
             {
-                return new TennisDB.H2HStats(1 - Tournament.statsCache[key1].winRatioOnThisTypeOfCourt, 1 - Tournament.statsCache[key1].winRatioLast10Matches);
+                return new TennisDB.H2HStats(1 - Tournament.statsCache[key2].winRatioOnThisTypeOfCourt, 1 - Tournament.statsCache[key2].winRatioLast10Matches);
             }
 
             Tournament.statsCache.Add(key1, dataReader.getH2HStats(id1, id2, this.courtType));
@@ -50,7 +50,19 @@ namespace FantasyTennis
 
         }
 
-        public Tournament(TennisDB.DataReader _dataReader, List<TennisDB.TennisPlayer> _players, List<Tuple<TennisDB.TennisPlayer, TennisDB.TennisPlayer>> drawsList, int rounds,
+        private int calculateRounds(int firstRoundMatches)
+        {
+            int count = 0;
+            while (firstRoundMatches != 0)
+            {
+                count++;
+                firstRoundMatches /= 2;
+            }
+
+            return count;
+        }
+
+        public Tournament(TennisDB.DataReader _dataReader, List<TennisDB.TennisPlayer> _players, List<Tuple<TennisDB.TennisPlayer, TennisDB.TennisPlayer>> drawsList,
             int winPoints, int runUpPoints, TennisDB.CourtTypes court,
             bool grandSlam, bool males)
         {
@@ -58,9 +70,10 @@ namespace FantasyTennis
 
             this.players = _players;
             this.numOfPlayers = this.players.Count;
-            this.rounds = rounds;
 
             this.firstRoundDrawList = drawsList;
+            this.rounds = this.calculateRounds(this.firstRoundDrawList.Count);
+
             this.winnerPoints = winPoints;
             this.runnerUpPoints = runUpPoints;
             this.courtType = court;

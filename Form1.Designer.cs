@@ -1,4 +1,6 @@
-﻿namespace FantasyTennisGame
+﻿using FantasyTennis;
+
+namespace FantasyTennisGame
 {
     partial class Form1
     {
@@ -28,9 +30,15 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Text = "Form1";
+            this.SuspendLayout();
+            // 
+            // Form1
+            // 
+            this.AutoScroll = true;
+            this.ClientSize = new System.Drawing.Size(1293, 624);
+            this.Name = "Form1";
+            this.ResumeLayout(false);
+
         }
 
         #endregion

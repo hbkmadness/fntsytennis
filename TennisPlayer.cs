@@ -11,7 +11,7 @@ namespace TennisDB
     {
         public int id = 0;
         public double price = 0;
-        public double currentFormRate = 0.8;
+        public double formAtBeginningOfTournament = 0.8;
 
         public WinRates winRates = new WinRates(0);
         public DefMap straight3SetsWinsRate;
@@ -48,7 +48,7 @@ namespace TennisDB
         public TennisPlayer(int _id, double _price, WinRates _wrs, DefMap straight3SetsWinsRate, DefMap straight3SetsLossRate, DefMap straight5SetsWinsRate,
             DefMap straight5SetsLossRate, DefMap donutLossRate, DefMap opponentWins4GamesInOneSetRate, DefMap winMoreThan4GamesInOneSetWhenLostRate, DefMap tieBreakRatio, DefMap tieBreakWinRatio,
             DefMap pointsServedPerSet, DefMap acesAvrgPerSet, DefMap doubleFaultsAvrgPerSet, DefMap firstServeInRate, DefMap firstServeWinRate, DefMap firstServeReturnedWinRate, DefMap secondServeWinRate,
-            DefMap secondServeReturnedWinRate, DefMap bpMadePerSet, DefMap bpFacedPerSet, DefMap bpWonRates, DefMap bpSavedRates)
+            DefMap secondServeReturnedWinRate, DefMap bpMadePerSet, DefMap bpFacedPerSet, DefMap bpWonRates, DefMap bpSavedRates, double _formAtBeginningOfTournament = 0.8)
         {
             this.id = _id;
             this.price = _price;
@@ -84,6 +84,8 @@ namespace TennisDB
 
             this.bpWonRates = bpWonRates;
             this.bpSavedRates = bpSavedRates;
+
+            this.formAtBeginningOfTournament = _formAtBeginningOfTournament;
     }
 
     }

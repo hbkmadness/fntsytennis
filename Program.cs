@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FantasyTennisGame;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -84,17 +85,17 @@ namespace FantasyTennis
 
             //UNCOMMENT THIS SO YOU CAN MAKE A NEW PLAYER DB
 
-            //FileStream fs = new FileStream("playersStats.dat", FileMode.Create);
-            //var players = db.execute();
-            //bf.Serialize(fs, players);
+            FileStream fs = new FileStream("playersStats.dat", FileMode.Create);
+            var players = db.execute();
+            bf.Serialize(fs, players);
 
             //----------------------------------------
 
 
             //COMMENT THIS WHEN YOU MAKE THE DB AND THEN JUST UNCOMMENT IT SO IT READS FROM THE FILE DIRECTLY
 
-            FileStream fs = new FileStream("playersStats.dat", FileMode.Open);
-            var players = (List<TennisDB.TennisPlayer>)bf.Deserialize(fs);
+            //FileStream fs = new FileStream("playersStats.dat", FileMode.Open);
+            //var players = (List<TennisDB.TennisPlayer>)bf.Deserialize(fs);
 
             //-------------------------------------------------------------------------
 
@@ -114,9 +115,9 @@ namespace FantasyTennis
 
             Dictionary<int, int> dc = new Dictionary<int, int>();
 
-            for (int i = 0; i < 100000; i++)
+            for (int i = 0; i < 5000; i++)
             {
-                Tournament tournament = new Tournament(db, players, listWithMatches, 2, 30, 16, TennisDB.CourtTypes.HARD,true , true);
+                Tournament tournament = new Tournament(db, players, listWithMatches, 30, 16, TennisDB.CourtTypes.HARD, true, true);
 
                 tournament.simulateTournament();
 
@@ -134,6 +135,13 @@ namespace FantasyTennis
             {
                 Console.WriteLine("{0} have won {1} Tournements, interesting indeed, much info, big funny.", TennisDB.IDToName.idToName[entry.Key], entry.Value);
             }
+
+            //Tournament tournament = new Tournament(db, players, listWithMatches, 30, 16, TennisDB.CourtTypes.HARD, true, true);
+            //tournament.simulateTournament();
+
+            //Application.EnableVisualStyles();
+            //Application.SetCompatibleTextRenderingDefault(false);
+            //Application.Run(new Form1(tournament.draws,tournament.rounds));
 
             if (true)
             {

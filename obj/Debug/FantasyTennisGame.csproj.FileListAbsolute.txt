@@ -6,3 +6,4 @@ c:\users\skalov\documents\visual studio 2015\Projects\FantasyTennisGame\obj\Debu
 c:\users\skalov\documents\visual studio 2015\Projects\FantasyTennisGame\obj\Debug\FantasyTennisGame.csproj.GenerateResource.Cache
 c:\users\skalov\documents\visual studio 2015\Projects\FantasyTennisGame\obj\Debug\FantasyTennisGame.exe
 c:\users\skalov\documents\visual studio 2015\Projects\FantasyTennisGame\obj\Debug\FantasyTennisGame.pdb
+c:\users\skalov\documents\visual studio 2015\Projects\FantasyTennisGame\obj\Debug\FantasyTennisGame.Form1.resources
