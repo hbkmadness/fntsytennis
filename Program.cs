@@ -85,17 +85,17 @@ namespace FantasyTennis
 
             //UNCOMMENT THIS SO YOU CAN MAKE A NEW PLAYER DB
 
-            FileStream fs = new FileStream("playersStats.dat", FileMode.Create);
-            var players = db.execute();
-            bf.Serialize(fs, players);
+            //FileStream fs = new FileStream("playersStats.dat", FileMode.Create);
+            //var players = db.execute();
+            //bf.Serialize(fs, players);
 
             //----------------------------------------
 
 
             //COMMENT THIS WHEN YOU MAKE THE DB AND THEN JUST UNCOMMENT IT SO IT READS FROM THE FILE DIRECTLY
 
-            //FileStream fs = new FileStream("playersStats.dat", FileMode.Open);
-            //var players = (List<TennisDB.TennisPlayer>)bf.Deserialize(fs);
+            FileStream fs = new FileStream("playersStats.dat", FileMode.Open);
+            var players = (List<TennisDB.TennisPlayer>)bf.Deserialize(fs);
 
             //-------------------------------------------------------------------------
 
