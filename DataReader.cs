@@ -9,63 +9,7 @@ using System.Threading.Tasks;
 
 namespace TennisDB
 {
-    public class IDToName
-    {
-        public static readonly Dictionary<int, string> idToName = new Dictionary<int, string>
-{
-    {104925, "Novak Djokovic" },
-    {104918, "Andy Murray" },
-    {105683, "Milos Raonic"},
-    {105453, "Key Nishikori"},
-    {103819, "Roger Federer"},
-    {104792, "Gael Monfis"},
-    {104527, "Stan Wawrinka"},
-    {104745, "Rafael Nadal"},
-    {105227, "Marin Cilic"},
-    {106401, "Nick Kyrgos"},
-    {104542, "Tsonga"},
-    {106233, "Dominic Thiem"},
-    {104545, "John Isner"},
-    {105223, "Juan Martin Del Potro" },
-    {105676, "David Goffin"},
-    {106058, "Jack Sock"},
-    {104607, "Tomas Berdych"},
-    {100644, "Alexander Zverev"},
-    {105138, "Roberto Bautista Agut"},
-    {105777, "Grigor Dimitrov"},
-    {104755, "Richard Gasquet"},
-    {104180, "Gilles Muller"},
-    {106298, "Lucas Poullie"},
-    {103333, "Ivo Karlovic"},
-    {104655, "Pablo Cuevas"}
-    //{26, "S Williams"},
-    //{27, "A Kerber"},
-    //{28, "A Radwanska"},
-    //{29, "M Keys"},
-    //{30, "S Halep"},
-    //{31, "V Azarenka"},
-    //{32, "D Cibulkova"},
-    //{33, "K Pliskova"},
-    //{34, "S Kuznecowa"},
-    //{35, "J Konta"},
-    //{36, "P Kvitova"},
-    //{37, "C Wozniacki"},
-    //{38, "E Svitolina"},
-    //{39, "S Stephens"},
-    //{40, "V Williams"},
-    //{41, "C Navarro"},
-    //{42, "B Strycova"},
-    //{43, "G Muguruza"},
-    //{44, "T Basinszky"},
-    //{45, "E Vescnina"},
-    //{46, "V Kulibic"},
-    //{47, "N Osaka"},
-    //{48, "D Kasatkina"},
-    //{49, "L Sigermund"},
-    //{50, "K Bertens"}
-};
-    }
-    public class DataReader
+   public class DataReader
     {
         //the connection with the db
         SqlConnection connection;
@@ -81,7 +25,7 @@ namespace TennisDB
 
         public DataReader()
         {
-            connection = new SqlConnection("Server=.\\SQLEXPRESS;Database=TestDB;Trusted_Connection=True;MultipleActiveResultSets=true;"); ;
+            connection = new SqlConnection("Server=.\\SQLEXPRESS;Database=TestDB;Trusted_Connection=True;MultipleActiveResultSets=true;");
 
             tablesNames = new List<string> { "atp_matches_2016$", "atp_matches_2015$", "atp_matches_2014$", "atp_matches_2013$", "atp_matches_2012$", "atp_matches_2011$",
                 "atp_matches_2010$", "atp_matches_2009$", "atp_matches_2008$","atp_matches_2007$","atp_matches_2006$" };
@@ -98,14 +42,19 @@ namespace TennisDB
             playerStats = new Dictionary<int, PlayerStats>();
         }
 
-        private List<SqlDataReader> executeQuery(string query)
+        private List<SqlDataReader> executeQuery(string query, int lastYears = 100)
         {
             List<SqlDataReader> returnList = new List<SqlDataReader>();
+            int counter = 0;
 
             tablesNames.ForEach((table) =>
             {
-                SqlCommand cmd = new SqlCommand(String.Format(query, table), connection);
-                returnList.Add(cmd.ExecuteReader());
+                if (counter < lastYears)
+                {
+                    SqlCommand cmd = new SqlCommand(String.Format(query, table), connection);
+                    returnList.Add(cmd.ExecuteReader());
+                    counter++;
+                }
 
             });
 
@@ -197,7 +146,7 @@ namespace TennisDB
             int numOfSet = 1;
             foreach (string set in difSets)
             {
-                if (set != "RET")
+                if (set != "RET" && set != "DEF")
                 {
                     if (set != "" && set != "W/O")
                     {
@@ -947,6 +896,68 @@ namespace TennisDB
             connection.Close();
 
             return playerReaded;
+        }
+
+        //Returns the H2H stats for player 1 and player 2 depending on player 1 for last 10 matches and given type of court
+        public H2HStats getH2HStats(int idPlayer1, int idPlayer2, CourtTypes courtType)
+        {
+            connection.Open();
+
+            List<SqlDataReader> allMatchesWinnerPlayer1ThisCourt = this.executeQuery(String.Format("SELECT COUNT(*) FROM {0} WHERE (winner_id = {1} AND loser_id = {2}) AND surface = {3}", "{0}", idPlayer1, idPlayer2, courtTypesKeys[courtType]));
+            List<SqlDataReader> allMatchesWinnerPlayer2ThisCourt = this.executeQuery(String.Format("SELECT COUNT(*) FROM {0} WHERE (winner_id = {2} AND loser_id = {1}) AND surface = {3}", "{0}", idPlayer1, idPlayer2, courtTypesKeys[courtType]));
+
+            double sumWinsPlayer1 = 0;
+            double sumWinsPlayer2 = 0;
+
+            allMatchesWinnerPlayer1ThisCourt.ForEach((winsBySeason) =>
+            {
+                while (winsBySeason.Read())
+                {
+                    double winsThisSeason = winsBySeason.GetInt32(0);
+                    sumWinsPlayer1 += winsThisSeason;
+                }
+            });
+
+            allMatchesWinnerPlayer2ThisCourt.ForEach((winsBySeason) =>
+            {
+                while (winsBySeason.Read())
+                {
+                    double winsThisSeason = winsBySeason.GetInt32(0);
+                    sumWinsPlayer2 += winsThisSeason;
+                }
+            });
+
+            double winRateForThisCourt = (sumWinsPlayer1 + sumWinsPlayer2) > 0 ? sumWinsPlayer1 / (sumWinsPlayer1 + sumWinsPlayer2) : 0;
+
+
+            List<SqlDataReader> allMatches = this.executeQuery(String.Format("SELECT winner_id FROM {0} WHERE (winner_id = {1} AND loser_id = {2}) OR (winner_id = {2} AND loser_id = {1})", "{0}", idPlayer1, idPlayer2));
+
+            double sumAllWinsPlayer1 = 0;
+            double sumAllWinsPlayer2 = 0;
+            int counter = 0;
+            allMatches.ForEach((matchBySeason) =>
+            {
+                while (matchBySeason.Read() && counter < 10)
+                {
+                    double winnerID = matchBySeason.GetDouble(0);
+                    if(winnerID == idPlayer1)
+                    {
+                        sumAllWinsPlayer1++;
+                    }
+                    else
+                    {
+                        sumAllWinsPlayer2++;
+                    }
+
+                    counter++;
+                }
+            });
+
+            double winRateLast10Matches = (sumAllWinsPlayer1 + sumAllWinsPlayer2) > 0 ? sumAllWinsPlayer1 / (sumAllWinsPlayer1 + sumAllWinsPlayer2) : 0;
+
+            connection.Close();
+
+            return new H2HStats(winRateForThisCourt, winRateLast10Matches);
         }
     }
 }

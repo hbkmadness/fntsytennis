@@ -12,14 +12,16 @@ namespace FantasyTennis
 
         public TennisDB.TennisPlayer p1;
         public TennisDB.TennisPlayer p2;
+        public TennisDB.H2HStats h2hStats;
         public TennisDB.CourtTypes courtType;
         public bool grandSlam;
         public bool males;
 
-        public MatchSimulator(TennisDB.TennisPlayer _p1, TennisDB.TennisPlayer _p2, TennisDB.CourtTypes _courtType, bool _grandSlam, bool _males)
+        public MatchSimulator(TennisDB.TennisPlayer _p1, TennisDB.TennisPlayer _p2, TennisDB.H2HStats _h2hStats, TennisDB.CourtTypes _courtType, bool _grandSlam, bool _males)
         {
             this.p1 = _p1;
             this.p2 = _p2;
+            this.h2hStats = _h2hStats;
             this.courtType = _courtType;
             this.grandSlam = _grandSlam;
             this.males = _males;
@@ -95,8 +97,8 @@ namespace FantasyTennis
         {
             int numOfMaxSets = this.grandSlam && this.males ? 5 : 3;
             //get the h2h information via p1
-            double h2hThisCourtType = 0.56;
-            double h2hLast10Matches = 0.7;
+            double h2hThisCourtType = this.h2hStats.winRatioOnThisTypeOfCourt;
+            double h2hLast10Matches = this.h2hStats.winRatioLast10Matches;
 
             double p1WinPoints;
             double p2WinPoints;

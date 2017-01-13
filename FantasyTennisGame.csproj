@@ -61,6 +61,8 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="GenericAlgorythm.cs" />
+    <Compile Include="H2HStats.cs" />
+    <Compile Include="IDDictionaries.cs" />
     <Compile Include="MatchNode.cs" />
     <Compile Include="MatchResult.cs" />
     <Compile Include="MatchSimulator.cs" />

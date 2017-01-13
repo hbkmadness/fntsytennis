@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TennisDB
 {
-    public class WinRates
+    [Serializable] public class WinRates
     {
         public double defaultWinRate = 0;
         public Dictionary<CourtTypes, double> winRates;

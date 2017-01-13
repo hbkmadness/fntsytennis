@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace TennisDB
 {
     using DefMap = Dictionary<CourtTypes, double>;
-    public class TennisPlayer
+    [Serializable] public class TennisPlayer
     {
         public int id = 0;
         public double price = 0;

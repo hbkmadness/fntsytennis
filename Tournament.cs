@@ -9,6 +9,8 @@ namespace FantasyTennis
     class Tournament
     {
 
+        public static Dictionary<string, TennisDB.H2HStats> statsCache = new Dictionary<string, TennisDB.H2HStats>();
+
         public int numOfPlayers;
         public int rounds;
 
@@ -17,6 +19,8 @@ namespace FantasyTennis
         public bool males;
         public int winnerPoints;
         public int runnerUpPoints;
+
+        public TennisDB.DataReader dataReader;
 
         public Dictionary<int, double> playerPoints;
 
@@ -27,10 +31,31 @@ namespace FantasyTennis
 
         public int currentRound = 1;
 
-        public Tournament(List<TennisDB.TennisPlayer> _players, List<Tuple<TennisDB.TennisPlayer, TennisDB.TennisPlayer>> drawsList, int rounds,
+        private TennisDB.H2HStats getH2HStats(int id1, int id2)
+        {
+            string key1 = String.Format("{0},{1},{2}", id1, id2, courtType);
+            string key2 = String.Format("{0},{1},{2}", id2, id1, courtType);
+
+            if (Tournament.statsCache.ContainsKey(key1))
+            {
+                return Tournament.statsCache[key1];
+            }
+            else if (Tournament.statsCache.ContainsKey(key2))
+            {
+                return new TennisDB.H2HStats(1 - Tournament.statsCache[key1].winRatioOnThisTypeOfCourt, 1 - Tournament.statsCache[key1].winRatioLast10Matches);
+            }
+
+            Tournament.statsCache.Add(key1, dataReader.getH2HStats(id1, id2, this.courtType));
+            return Tournament.statsCache[key1];
+
+        }
+
+        public Tournament(TennisDB.DataReader _dataReader, List<TennisDB.TennisPlayer> _players, List<Tuple<TennisDB.TennisPlayer, TennisDB.TennisPlayer>> drawsList, int rounds,
             int winPoints, int runUpPoints, TennisDB.CourtTypes court,
             bool grandSlam, bool males)
         {
+            this.dataReader = _dataReader;
+
             this.players = _players;
             this.numOfPlayers = this.players.Count;
             this.rounds = rounds;
@@ -52,7 +77,8 @@ namespace FantasyTennis
             });
         }
 
-        public void simulateNextRound(){
+        public void simulateNextRound()
+        {
             List<MatchNode> matchesToBePlayed = this.draws.getNodesAtRound(currentRound);
 
             matchesToBePlayed.ForEach((match) =>
@@ -68,7 +94,7 @@ namespace FantasyTennis
                     return;
                 }
 
-                MatchSimulator simulator = new MatchSimulator(match.p1, match.p2, this.courtType, this.grandSlam, this.males);
+                MatchSimulator simulator = new MatchSimulator(match.p1, match.p2, this.getH2HStats(match.p1.id, match.p2.id), this.courtType, this.grandSlam, this.males);
                 MatchResult result = simulator.simulateMatch();
                 match.setWinnerAndLoser(result.winnerID);
 

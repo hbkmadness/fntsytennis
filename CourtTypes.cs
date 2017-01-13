@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TennisDB
 {
-    public enum CourtTypes
+    [Serializable] public enum CourtTypes
     {
         CLAY,
         HARD,

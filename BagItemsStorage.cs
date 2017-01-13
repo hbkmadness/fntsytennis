@@ -29,7 +29,7 @@ namespace FantasyTennis
             this.items.Add(new BagItem(11, 40.41, 10.03));
             this.items.Add(new BagItem(12, 38.48, 9.55));
             this.items.Add(new BagItem(13, 38.1, 9.46));
-            //this.items.Add(new BagItem(14, 37.99, 9.43));
+            this.items.Add(new BagItem(14, 37.99, 9.43));
             this.items.Add(new BagItem(15, 37.53, 9.32));
             this.items.Add(new BagItem(16, 35.98, 8.93));
             this.items.Add(new BagItem(17, 34.94, 8.67));
@@ -44,9 +44,9 @@ namespace FantasyTennis
             this.items.Add(new BagItem(26, 109.71, 19.07));
             this.items.Add(new BagItem(27, 53.42, 13.26));
             this.items.Add(new BagItem(28, 50.27, 12.48));
-            //this.items.Add(new BagItem(29, 49.16, 12.2));
+            this.items.Add(new BagItem(29, 49.16, 12.2));
             this.items.Add(new BagItem(30, 44.94, 11.16));
-            //this.items.Add(new BagItem(31, 55.25, 10.97));
+            this.items.Add(new BagItem(31, 55.25, 10.97));
             this.items.Add(new BagItem(32, 43.89, 10.9));
             this.items.Add(new BagItem(33, 41.23, 10.23));
             this.items.Add(new BagItem(34, 39.26, 9.75));
