@@ -29,12 +29,12 @@ namespace FantasyTennis
 
         private double getWinCoef3Sets(TennisDB.TennisPlayer p1, double h2hCourt, double h2hLast10)
         {
-            return p1.formAtBeginningOfTournament * (0.5 * h2hCourt + 0.35 * h2hLast10 + 0.15 * p1.winRates.getWinRate(this.courtType));
+            return p1.formAtBeginningOfTournament * (0.45 * h2hCourt + 0.38 * h2hLast10 + 0.17 * p1.winRates.getWinRate(this.courtType));
         }
 
         private double getWinCoef5Sets(TennisDB.TennisPlayer p1, double h2hCourt, double h2hLast10, double h2h5Sets)
         {
-            return p1.formAtBeginningOfTournament * (0.4 * h2h5Sets + 0.35 * h2hCourt + 0.15 * h2hLast10 + 0.1 * p1.winRates.getWinRate(this.courtType));
+            return p1.formAtBeginningOfTournament * (0.30 * h2h5Sets + 0.37 * h2hCourt + 0.23 * h2hLast10 + 0.1 * p1.winRates.getWinRate(this.courtType));
         }
 
         private SetResult simulateSet(TennisDB.TennisPlayer winner, TennisDB.TennisPlayer loser)
