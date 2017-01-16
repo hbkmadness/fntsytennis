@@ -74,25 +74,25 @@ namespace FantasyTennisGame
 
             //UNCOMMENT THIS SO YOU CAN MAKE A NEW PLAYER DB
 
-            //FileStream fsMales = new FileStream("playersStatsMales.dat", FileMode.Create);
-            //FileStream fsFemales = new FileStream("playersStatsFemales.dat", FileMode.Create);
+            FileStream fsMales = new FileStream("playersStatsMales.dat", FileMode.Create);
+            FileStream fsFemales = new FileStream("playersStatsFemales.dat", FileMode.Create);
 
-            //var playersMales = dbMales.execute();
-            //var playersFemales = dbFemales.execute();
+            var playersMales = dbMales.execute();
+            var playersFemales = dbFemales.execute();
 
-            //bf.Serialize(fsMales, playersMales);
-            //bf.Serialize(fsFemales, playersFemales);
+            bf.Serialize(fsMales, playersMales);
+            bf.Serialize(fsFemales, playersFemales);
 
             //----------------------------------------
 
 
             //COMMENT THIS WHEN YOU MAKE THE DB AND THEN JUST UNCOMMENT IT SO IT READS FROM THE FILE DIRECTLY
 
-            FileStream fsMales = new FileStream("playersStatsMales.dat", FileMode.Open);
-            FileStream fsFemales = new FileStream("playersStatsFemales.dat", FileMode.Open);
+            //FileStream fsMales = new FileStream("playersStatsMales.dat", FileMode.Open);
+            //FileStream fsFemales = new FileStream("playersStatsFemales.dat", FileMode.Open);
 
-            var playersMales = (List<TennisDB.TennisPlayer>)bf.Deserialize(fsMales);
-            var playersFemales = (List<TennisDB.TennisPlayer>)bf.Deserialize(fsFemales);
+            //var playersMales = (List<TennisDB.TennisPlayer>)bf.Deserialize(fsMales);
+            //var playersFemales = (List<TennisDB.TennisPlayer>)bf.Deserialize(fsFemales);
 
             //-------------------------------------------------------------------------
 
