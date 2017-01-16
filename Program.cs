@@ -1,13 +1,13 @@
-﻿using FantasyTennisGame;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using FantasyTennis;
 
-namespace FantasyTennis
+namespace FantasyTennisGame
 {
     static class Program
     {
@@ -53,8 +53,8 @@ namespace FantasyTennis
             {
                 if (idsArray[i] == -2)
                 {
-                    int rndNum = rnd.Next(males ? TennisDB.AvrgPlayers.avrgIDsMales.Count : TennisDB.AvrgPlayers.avrgIDsFemales.Count);
-                    idsArray[i] = males ? TennisDB.AvrgPlayers.avrgIDsMales.ElementAt(rndNum) : TennisDB.AvrgPlayers.avrgIDsFemales.ElementAt(rndNum);
+                    int rndNum = rnd.Next(males ? TennisDB.StaticData.AvrgPlayers.avrgIDsMales.Count : TennisDB.StaticData.AvrgPlayers.avrgIDsFemales.Count);
+                    idsArray[i] = males ? TennisDB.StaticData.AvrgPlayers.avrgIDsMales.ElementAt(rndNum) : TennisDB.StaticData.AvrgPlayers.avrgIDsFemales.ElementAt(rndNum);
                 }
             }
 
@@ -125,12 +125,12 @@ namespace FantasyTennis
 
             Dictionary<int, double> pointsPerId = new Dictionary<int, double>();
 
-            int tournamentsNumber = 1000000;
+            int tournamentsNumber = 10;
             //Simulate all the tournaments
             for (int i = 0; i < tournamentsNumber; i++)
             {
-                Tournament tournament = new Tournament(dbMales, playersMales, listWithMatchesMales, 60, 36, TennisDB.CourtTypes.HARD, true, true);
-                Tournament tournamentFemales = new Tournament(dbFemales, playersFemales, listWithMatchesFemales, 60, 36, TennisDB.CourtTypes.HARD, true, false);
+                Tournament tournament = new Tournament(dbMales, playersMales, listWithMatchesMales, 60, 36, TennisDB.Enums.CourtTypes.HARD, true, true);
+                Tournament tournamentFemales = new Tournament(dbFemales, playersFemales, listWithMatchesFemales, 60, 36, TennisDB.Enums.CourtTypes.HARD, true, false);
 
                 List<Tournament> allTournaments = new List<Tournament>() {tournament, tournamentFemales };
                 allTournaments.ForEach((tourn) =>
@@ -160,16 +160,16 @@ namespace FantasyTennis
 
             var filteredPointsPerID = pointsPerId.Where((pair) =>
             {
-                return !TennisDB.AvrgPlayers.avrgIDsMales.Contains(pair.Key) && !TennisDB.AvrgPlayers.avrgIDsFemales.Contains(pair.Key);
+                return !TennisDB.StaticData.AvrgPlayers.avrgIDsMales.Contains(pair.Key) && !TennisDB.StaticData.AvrgPlayers.avrgIDsFemales.Contains(pair.Key);
             });
 
             //show results
             foreach (var entry in filteredPointsPerID.OrderByDescending((pair) => pair.Value))
             {
-                Console.WriteLine("{0} have won {1} Tournement points average, interesting indeed, much info, big funny.", TennisDB.IDToName.iDToName(entry.Key), entry.Value);
+                Console.WriteLine("{0} have won {1} Tournement points average, interesting indeed, much info, big funny.", TennisDB.StaticData.IDToName.iDToName(entry.Key), entry.Value);
             }
 
-            GenericAlgorythm gen = new GenericAlgorythm(filteredPointsPerID, FantasyGames.FANTASY_LEAGUE);
+            GenericAlgorythm gen = new GenericAlgorythm(filteredPointsPerID, FantasyTennis.Enums.FantasyGames.FANTASY_LEAGUE);
             gen.populate();
             gen.runAlgorythm();
 
@@ -178,10 +178,10 @@ namespace FantasyTennis
             Console.Write("With Ids: \n");
             gen.population.Max.content.ForEach((item) =>
             {
-                Console.Write(TennisDB.IDToName.iDToName(item.id) + "\n");
+                Console.Write(TennisDB.StaticData.IDToName.iDToName(item.id) + "\n");
             });
 
-            //Tournament tournament = new Tournament(db, players, listWithMatches, 30, 16, TennisDB.CourtTypes.HARD, true, true);
+            //Tournament tournament = new Tournament(db, players, listWithMatches, 30, 16, TennisDB.Enums.Enums.CourtTypes.HARD, true, true);
             //tournament.simulateTournament();
 
             //Application.EnableVisualStyles();

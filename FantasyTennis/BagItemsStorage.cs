@@ -10,16 +10,16 @@ namespace FantasyTennis
     {
         public List<BagItem> items;
 
-        public BagItemsStorage(IEnumerable<KeyValuePair<int, double>> playersStats, FantasyGames game)
+        public BagItemsStorage(IEnumerable<KeyValuePair<int, double>> playersStats, Enums.FantasyGames game)
         {
             this.items = new List<BagItem>();
 
             foreach (var playerEntry in playersStats)
             {
-                if (game == FantasyGames.FANTASY_LEAGUE)
+                if (game == Enums.FantasyGames.FANTASY_LEAGUE)
                 {
                     this.items.Add(new BagItem(playerEntry.Key, playerEntry.Value,
-                        TennisDB.IDToPrice.idToPrice(playerEntry.Key)));
+                        TennisDB.StaticData.IDToPrice.idToPrice(playerEntry.Key)));
                 }
             }
         }

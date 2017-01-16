@@ -9,18 +9,18 @@ namespace TennisDB
     [Serializable] public class WinRates
     {
         public double defaultWinRate = 0;
-        public Dictionary<CourtTypes, double> winRates;
+        public Dictionary<Enums.CourtTypes, double> winRates;
 
         public WinRates(double _defaultWinRate, double grassWin = 0, double clayWin = 0, double hardWin = 0)
         {
             this.defaultWinRate = _defaultWinRate;
-            winRates = new Dictionary<CourtTypes, double>();
-            winRates[CourtTypes.CLAY] = clayWin;
-            winRates[CourtTypes.HARD] = hardWin;
-            winRates[CourtTypes.GRASS] = hardWin;
+            winRates = new Dictionary<Enums.CourtTypes, double>();
+            winRates[Enums.CourtTypes.CLAY] = clayWin;
+            winRates[Enums.CourtTypes.HARD] = hardWin;
+            winRates[Enums.CourtTypes.GRASS] = hardWin;
         }
 
-        public double getWinRate(CourtTypes type)
+        public double getWinRate(Enums.CourtTypes type)
         {
             if (winRates.ContainsKey(type))
             {

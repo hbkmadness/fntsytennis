@@ -6,18 +6,18 @@ using System.Threading.Tasks;
 
 namespace FantasyTennis
 {
-    class MatchSimulator
+    class MatchSimulator : MatchSimulatorBase
     {
         private static Random rndmizer = new Random();
 
         public TennisDB.TennisPlayer p1;
         public TennisDB.TennisPlayer p2;
         public TennisDB.H2HStats h2hStats;
-        public TennisDB.CourtTypes courtType;
+        public TennisDB.Enums.CourtTypes courtType;
         public bool grandSlam;
         public bool males;
 
-        public MatchSimulator(TennisDB.TennisPlayer _p1, TennisDB.TennisPlayer _p2, TennisDB.H2HStats _h2hStats, TennisDB.CourtTypes _courtType, bool _grandSlam, bool _males)
+        public MatchSimulator(TennisDB.TennisPlayer _p1, TennisDB.TennisPlayer _p2, TennisDB.H2HStats _h2hStats, TennisDB.Enums.CourtTypes _courtType, bool _grandSlam, bool _males)
         {
             this.p1 = _p1;
             this.p2 = _p2;
@@ -43,7 +43,7 @@ namespace FantasyTennis
             double loserPoints = 0;
             double rnd;
 
-            double tieBreakRate = winner.tieBreakRatio[courtType] * loser.tieBreakRatio[courtType];
+            double tieBreakRate = winner.tieBreakRates.tieBreakRatio[courtType] * loser.tieBreakRates.tieBreakRatio[courtType];
 
             winnerPoints += 1;
 
@@ -60,40 +60,40 @@ namespace FantasyTennis
             {
                 //did the loser won 4 games
                 rnd = rndmizer.NextDouble();
-                if (moreThan4Games = rnd <= (winner.opponentWins4GamesInOneSetRate[courtType] * loser.winMoreThan4GamesInOneSetWhenLostRate[courtType]))
+                if (moreThan4Games = rnd <= (winner.gamesNumbers.opponentWins4GamesInOneSetRate[courtType] * loser.gamesNumbers.winMoreThan4GamesInOneSetWhenLostRate[courtType]))
                 {
                     loserPoints += 1;
                 }
             }
 
-            winnerPoints += winner.acesAvrgPerSet[courtType] * 0.2;
-            loserPoints += loser.acesAvrgPerSet[courtType] * 0.2;
+            winnerPoints += winner.setAvrgs.aces[courtType] * 0.2;
+            loserPoints += loser.setAvrgs.aces[courtType] * 0.2;
 
-            winnerPoints += winner.doubleFaultsAvrgPerSet[courtType] * -0.2;
-            loserPoints += loser.doubleFaultsAvrgPerSet[courtType] * -0.2;
+            winnerPoints += winner.setAvrgs.doubleFaults[courtType] * -0.2;
+            loserPoints += loser.setAvrgs.doubleFaults[courtType] * -0.2;
 
-            double firstServesPlayWinnerGames = winner.pointsServedPerSet[courtType] * winner.firstServeInRate[courtType];
-            double secondServesPlayWinnerGames = winner.pointsServedPerSet[courtType] - firstServesPlayWinnerGames;
+            double firstServesPlayWinnerGames = winner.setAvrgs.pointsServed[courtType] * winner.serveGameRates.firstServeInRate[courtType];
+            double secondServesPlayWinnerGames = winner.setAvrgs.pointsServed[courtType] - firstServesPlayWinnerGames;
 
-            double firstServesPlayLoserGames = winner.pointsServedPerSet[courtType] * winner.firstServeInRate[courtType];
-            double secondServesPlayLoserGames = winner.pointsServedPerSet[courtType] - firstServesPlayWinnerGames;
+            double firstServesPlayLoserGames = winner.setAvrgs.pointsServed[courtType] * winner.serveGameRates.firstServeInRate[courtType];
+            double secondServesPlayLoserGames = winner.setAvrgs.pointsServed[courtType] - firstServesPlayWinnerGames;
 
-            winnerPoints += (firstServesPlayLoserGames * (1 - loser.firstServeWinRate[courtType] + winner.firstServeReturnedWinRate[courtType]) / 2) * 0.2;
-            loserPoints += (firstServesPlayWinnerGames * (1 - winner.firstServeWinRate[courtType] + loser.firstServeReturnedWinRate[courtType]) / 2) * 0.2;
+            winnerPoints += (firstServesPlayLoserGames * (1 - loser.serveGameRates.firstServeWinRate[courtType] + winner.returnGamesRates.firstServeReturnedWinRate[courtType]) / 2) * 0.2;
+            loserPoints += (firstServesPlayWinnerGames * (1 - winner.serveGameRates.firstServeWinRate[courtType] + loser.returnGamesRates.firstServeReturnedWinRate[courtType]) / 2) * 0.2;
 
-            winnerPoints += (secondServesPlayLoserGames * (1 - loser.secondServeWinRate[courtType] + winner.secondServeReturnedWinRate[courtType]) / 2) * 0.1;
-            loserPoints += (secondServesPlayWinnerGames * (1 - winner.secondServeWinRate[courtType] + loser.secondServeReturnedWinRate[courtType]) / 2) * 0.1;
+            winnerPoints += (secondServesPlayLoserGames * (1 - loser.serveGameRates.secondServeWinRate[courtType] + winner.returnGamesRates.secondServeReturnedWinRate[courtType]) / 2) * 0.1;
+            loserPoints += (secondServesPlayWinnerGames * (1 - winner.serveGameRates.secondServeWinRate[courtType] + loser.returnGamesRates.secondServeReturnedWinRate[courtType]) / 2) * 0.1;
 
-            winnerPoints += ((loser.bpFacedPerSet[courtType] + winner.bpMadePerSet[courtType]) / 2) * ((winner.bpWonRates[courtType] + loser.bpSavedRates[courtType]) / 2) * 0.5;
-            loserPoints += ((winner.bpFacedPerSet[courtType] + loser.bpMadePerSet[courtType]) / 2) * ((loser.bpWonRates[courtType] + winner.bpSavedRates[courtType]) / 2) * 0.5;
+            winnerPoints += ((loser.setAvrgs.bpFaced[courtType] + winner.setAvrgs.bpMade[courtType]) / 2) * ((winner.breakPointsRates.bpWonRates[courtType] + loser.breakPointsRates.bpSavedRates[courtType]) / 2) * 0.5;
+            loserPoints += ((winner.setAvrgs.bpFaced[courtType] + loser.setAvrgs.bpMade[courtType]) / 2) * ((loser.breakPointsRates.bpWonRates[courtType] + winner.breakPointsRates.bpSavedRates[courtType]) / 2) * 0.5;
 
-            winnerPoints += ((loser.bpMadePerSet[courtType]+winner.bpFacedPerSet[courtType])/2)*((winner.bpSavedRates[courtType]+ loser.bpWonRates[courtType])/2) * 0.1;
-            loserPoints += ((winner.bpMadePerSet[courtType] + loser.bpFacedPerSet[courtType]) / 2) * ((loser.bpSavedRates[courtType] + winner.bpWonRates[courtType]) / 2) * 0.1;
+            winnerPoints += ((loser.setAvrgs.bpMade[courtType]+winner.setAvrgs.bpFaced[courtType])/2)*((winner.breakPointsRates.bpSavedRates[courtType]+ loser.breakPointsRates.bpWonRates[courtType])/2) * 0.1;
+            loserPoints += ((winner.setAvrgs.bpMade[courtType] + loser.setAvrgs.bpFaced[courtType]) / 2) * ((loser.breakPointsRates.bpSavedRates[courtType] + winner.breakPointsRates.bpWonRates[courtType]) / 2) * 0.1;
 
             return new SetResult(winnerPoints, loserPoints, tieBreak, moreThan4Games);
         }
 
-        public MatchResult simulateMatch()
+        public override MatchResult simulateMatch()
         {
             int numOfMaxSets = this.grandSlam && this.males ? 5 : 3;
             //get the h2h information via p1
@@ -131,11 +131,11 @@ namespace FantasyTennis
             double straightWinRate;
             if (numOfMaxSets == 5)
             {
-                straightWinRate = winner.straight5SetsWinsRate[courtType] * loser.straight5SetsLossRate[courtType];
+                straightWinRate = winner.straightSets.straight5SetsWinsRate[courtType] * loser.straightSets.straight5SetsLossRate[courtType];
             }
             else
             {
-                straightWinRate = winner.straight3SetsWinsRate[courtType] * loser.straight3SetsLossRate[courtType];
+                straightWinRate = winner.straightSets.straight3SetsWinsRate[courtType] * loser.straightSets.straight3SetsLossRate[courtType];
             }
 
             //determine whether or not it is a straight win

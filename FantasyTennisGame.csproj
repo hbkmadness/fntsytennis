@@ -62,34 +62,44 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bag.cs" />
-    <Compile Include="BagComparer.cs" />
-    <Compile Include="BagItem.cs" />
-    <Compile Include="BagItemsStorage.cs" />
-    <Compile Include="CourtTypes.cs" />
-    <Compile Include="DataReader.cs" />
-    <Compile Include="DefaultTableKeys.cs" />
-    <Compile Include="DrawsTree.cs" />
-    <Compile Include="FantasyGames.cs" />
+    <Compile Include="FantasyTennis\Bag.cs" />
+    <Compile Include="FantasyTennis\BagComparer.cs" />
+    <Compile Include="FantasyTennis\BagItem.cs" />
+    <Compile Include="FantasyTennis\BagItemsStorage.cs" />
+    <Compile Include="FantasyTennis\MatchSimulatorSetBySet.cs" />
+    <Compile Include="TennisDB\BreakPointsRates.cs" />
+    <Compile Include="TennisDB\Enums\CourtTypes.cs" />
+    <Compile Include="TennisDB\DataReader.cs" />
+    <Compile Include="TennisDB\GamesNumberRates.cs" />
+    <Compile Include="TennisDB\ReturnGameRates.cs" />
+    <Compile Include="TennisDB\ServeGameRates.cs" />
+    <Compile Include="TennisDB\SetAvrgs.cs" />
+    <Compile Include="TennisDB\StaticData\DefaultTableKeys.cs" />
+    <Compile Include="FantasyTennis\DrawsTree.cs" />
+    <Compile Include="FantasyTennis\Enums\FantasyGames.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="GenericAlgorythm.cs" />
-    <Compile Include="H2HStats.cs" />
-    <Compile Include="IDDictionaries.cs" />
-    <Compile Include="MatchNode.cs" />
-    <Compile Include="MatchResult.cs" />
-    <Compile Include="MatchSimulator.cs" />
-    <Compile Include="PlayerStats.cs" />
+    <Compile Include="FantasyTennis\GenericAlgorythm.cs" />
+    <Compile Include="TennisDB\H2HStats.cs" />
+    <Compile Include="TennisDB\StaticData\IDDictionaries.cs" />
+    <Compile Include="FantasyTennis\MatchNode.cs" />
+    <Compile Include="FantasyTennis\MatchResult.cs" />
+    <Compile Include="FantasyTennis\MatchSimulator.cs" />
+    <Compile Include="FantasyTennis\MatchSimulatorBase.cs" />
+    <Compile Include="FantasyTennis\Enums\MatchSimulatorType.cs" />
+    <Compile Include="TennisDB\PlayerDynamicStats.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SetResult.cs" />
-    <Compile Include="TennisPlayer.cs" />
-    <Compile Include="Tournament.cs" />
-    <Compile Include="WinRates.cs" />
+    <Compile Include="FantasyTennis\SetResult.cs" />
+    <Compile Include="TennisDB\StraightSetsRates.cs" />
+    <Compile Include="TennisDB\TennisPlayer.cs" />
+    <Compile Include="FantasyTennis\Tournament.cs" />
+    <Compile Include="TennisDB\TieBreakRates.cs" />
+    <Compile Include="TennisDB\WinRates.cs" />
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>

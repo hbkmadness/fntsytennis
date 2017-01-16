@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace FantasyTennis
 {
@@ -14,7 +11,7 @@ namespace FantasyTennis
         public int numOfPlayers;
         public int rounds;
 
-        public TennisDB.CourtTypes courtType;
+        public TennisDB.Enums.CourtTypes courtType;
         public bool grandSlam;
         public bool males;
         public int winnerPoints;
@@ -62,8 +59,19 @@ namespace FantasyTennis
             return count;
         }
 
+        private MatchResult simulateMatch(TennisDB.TennisPlayer p1, TennisDB.TennisPlayer p2, Enums.MatchSimulatorType simulator)
+        {
+            switch (simulator)
+            {
+                default:
+                    {
+                        return new MatchSimulator(p1, p2, this.getH2HStats(p1.id, p2.id), this.courtType, this.grandSlam, this.males).simulateMatch();
+                    }
+            }
+        }
+
         public Tournament(TennisDB.DataReader _dataReader, List<TennisDB.TennisPlayer> _players, List<Tuple<TennisDB.TennisPlayer, TennisDB.TennisPlayer>> drawsList,
-            int winPoints, int runUpPoints, TennisDB.CourtTypes court,
+            int winPoints, int runUpPoints, TennisDB.Enums.CourtTypes court,
             bool grandSlam, bool males)
         {
             this.dataReader = _dataReader;
@@ -107,8 +115,7 @@ namespace FantasyTennis
                     return;
                 }
 
-                MatchSimulator simulator = new MatchSimulator(match.p1, match.p2, this.getH2HStats(match.p1.id, match.p2.id), this.courtType, this.grandSlam, this.males);
-                MatchResult result = simulator.simulateMatch();
+                MatchResult result = this.simulateMatch(match.p1, match.p2, Enums.MatchSimulatorType.DEFAULT);
                 match.setWinnerAndLoser(result.winnerID);
 
                 playerPoints[match.winner.id] += result.winnerPoints;

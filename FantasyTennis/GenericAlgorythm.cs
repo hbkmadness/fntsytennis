@@ -16,7 +16,7 @@ namespace FantasyTennis
         public BagItemsStorage storage;
         public SortedSet<Bag> population;
 
-        public GenericAlgorythm(IEnumerable<KeyValuePair<int, double>> playersStats, FantasyGames game)
+        public GenericAlgorythm(IEnumerable<KeyValuePair<int, double>> playersStats, Enums.FantasyGames game)
         {
             this.population = new SortedSet<Bag>(new BagComparer());
             this.storage = new BagItemsStorage(playersStats, game);
@@ -61,7 +61,7 @@ namespace FantasyTennis
         public void runAlgorythm()
         {
             Random rndmizer = new Random();
-            for (long i = 0; i < 10000000; i++)
+            for (long i = 0; i < 10; i++)
             {
                 Bag bag1 = population.Max;
                 Bag bag2 = population.ElementAt(rndmizer.Next(population.Count - 1) + 1);

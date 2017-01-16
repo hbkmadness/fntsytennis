@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TennisDB
+namespace FantasyTennis
 {
-    [Serializable] public enum CourtTypes
+   abstract public class MatchSimulatorBase
     {
-        CLAY,
-        HARD,
-        GRASS
+        public abstract MatchResult simulateMatch();
     }
 }

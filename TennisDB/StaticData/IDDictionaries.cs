@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TennisDB
+namespace TennisDB.StaticData
 {
     public class IDToName
     {
@@ -78,7 +78,7 @@ namespace TennisDB
 
         public static string iDToName(int id)
         {
-            return TennisDB.IDToName.idToNameMales.ContainsKey(id) ? TennisDB.IDToName.idToNameMales[id] : TennisDB.IDToName.idToNameFemales[id];
+            return TennisDB.StaticData.IDToName.idToNameMales.ContainsKey(id) ? TennisDB.StaticData.IDToName.idToNameMales[id] : TennisDB.StaticData.IDToName.idToNameFemales[id];
         }
     }
 
@@ -144,7 +144,7 @@ namespace TennisDB
 
         public static double idToPrice(int id)
         {
-            return TennisDB.IDToPrice.idToPriceFantasyTennisLeagueMales.ContainsKey(id) ? TennisDB.IDToPrice.idToPriceFantasyTennisLeagueMales[id] : TennisDB.IDToPrice.idToPriceFantasyTennisLeagueFemales[id];
+            return TennisDB.StaticData.IDToPrice.idToPriceFantasyTennisLeagueMales.ContainsKey(id) ? TennisDB.StaticData.IDToPrice.idToPriceFantasyTennisLeagueMales[id] : TennisDB.StaticData.IDToPrice.idToPriceFantasyTennisLeagueFemales[id];
         }
     }
 

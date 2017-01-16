@@ -21,29 +21,29 @@ namespace TennisDB
         //all names of the tables that are going to be used for the queries
         List<String> tablesNames;
         //Map that connects the enum for the court types and the string representation of them in the tables
-        Dictionary<CourtTypes, String> courtTypesKeys;
+        Dictionary<Enums.CourtTypes, String> courtTypesKeys;
         //all the IDs of players 
         List<int> playersIDs;
 
         //Dictionary that holds for each id some basic stats that were calculated at some point of the program running, this is used so no additional queries will be needed after the first one
-        Dictionary<int, PlayerStats> playerStats;
+        Dictionary<int, PlayerDynamicStats> playerStats;
 
         public DataReader(bool male = true)
         {
-            connection = new SqlConnection("Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=TestDB;Data Source=SLAVI-PC;MultipleActiveResultSets=true;");
+            connection = new SqlConnection("Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=TestDB;Data Source=.\\SQLEXPRESS;MultipleActiveResultSets=true;");
 
             tablesNames = male ? DataReader.tableNamesMan : DataReader.tableNamesWoman;
 
-            courtTypesKeys = new Dictionary<CourtTypes, string> { { CourtTypes.CLAY, "'Clay'" }, { CourtTypes.HARD, "'Hard'" }, { CourtTypes.GRASS, "'Grass'" } };
+            courtTypesKeys = new Dictionary<Enums.CourtTypes, string> { { Enums.CourtTypes.CLAY, "'Clay'" }, { Enums.CourtTypes.HARD, "'Hard'" }, { Enums.CourtTypes.GRASS, "'Grass'" } };
 
             playersIDs = new List<int>();
 
-            foreach (var entry in male ? IDToName.idToNameMales : IDToName.idToNameFemales)
+            foreach (var entry in male ? StaticData.IDToName.idToNameMales : StaticData.IDToName.idToNameFemales)
             {
                 playersIDs.Add(entry.Key);
             }
 
-            playerStats = new Dictionary<int, PlayerStats>();
+            playerStats = new Dictionary<int, PlayerDynamicStats>();
         }
 
         private List<SqlDataReader> executeQuery(string query, int lastYears = 6)
@@ -141,9 +141,9 @@ namespace TennisDB
         private List<double> calculateAllWinRates(int id)
         {
             List<double> list = new List<double>();
-            list.Add(calculateWinRateForTypeOfCourt(id, courtTypesKeys[CourtTypes.CLAY]));
-            list.Add(calculateWinRateForTypeOfCourt(id, courtTypesKeys[CourtTypes.HARD]));
-            list.Add(calculateWinRateForTypeOfCourt(id, courtTypesKeys[CourtTypes.GRASS]));
+            list.Add(calculateWinRateForTypeOfCourt(id, courtTypesKeys[Enums.CourtTypes.CLAY]));
+            list.Add(calculateWinRateForTypeOfCourt(id, courtTypesKeys[Enums.CourtTypes.HARD]));
+            list.Add(calculateWinRateForTypeOfCourt(id, courtTypesKeys[Enums.CourtTypes.GRASS]));
             list.Add(calculateDefaultWinRate(id));
 
             return list;
@@ -204,7 +204,7 @@ namespace TennisDB
         }
 
         //Returns the rate of straight set wins or losses depending on the maximum sets that could be played
-        private double getStraightSetsWin(int id, DefaultTableKeys winKey, int numOfSets, CourtTypes court)
+        private double getStraightSetsWin(int id, DefaultTableKeys winKey, int numOfSets, Enums.CourtTypes court)
         {
             List<SqlDataReader> allMatches = this.executeQuery(String.Format("SELECT score FROM {0} WHERE {1} = {2} AND best_of = {3} AND surface = {4}", "{0}", winKey.Value, id, numOfSets, courtTypesKeys[court]));
             double matchCount = 0;
@@ -232,7 +232,7 @@ namespace TennisDB
         //Returns a tuple of the rates that the player let the opponent wins at least 4 games when a sets is won or he wins 4 sets when loses
         //The first item is when the player has won the set but let the opponent have at least 4 games
         //The second item is when the player has lost the set but won at least 4 games
-        private Tuple<double, double> getAtLeast4GamesWon(int id, CourtTypes court)
+        private Tuple<double, double> getAtLeast4GamesWon(int id, Enums.CourtTypes court)
         {
             List<SqlDataReader> allMatches = this.executeQuery(String.Format("SELECT score, winner_id FROM {0} WHERE (winner_id = {1} OR loser_id = {1}) AND surface = {2}", "{0}", id, courtTypesKeys[court]));
             double setsWonCount = 0;
@@ -306,7 +306,7 @@ namespace TennisDB
         //Returns a tuple with
         //Item 1 is the tie break ratio (how often the player plays tiebreaks)
         //Item 2 is the tie break win ratio
-        private Tuple<double, double> getTieBreakRate(int id, CourtTypes court)
+        private Tuple<double, double> getTieBreakRate(int id, Enums.CourtTypes court)
         {
             List<SqlDataReader> allMatches = this.executeQuery(String.Format("SELECT score, winner_id FROM {0} WHERE (winner_id = {1} OR loser_id = {1}) AND surface = {2}", "{0}", id, courtTypesKeys[court]));
             double allSetsPlayed = 0;
@@ -360,7 +360,7 @@ namespace TennisDB
         }
 
         //Returns the avrg per set number for specific value key from the table. Used for aces, doublefaults and etc.
-        private double getValueAvrgPerSet(int id, CourtTypes court, DefaultTableKeys valueKey)
+        private double getValueAvrgPerSet(int id, Enums.CourtTypes court, DefaultTableKeys valueKey)
         {
             double numOfValues = 0;
             List<SqlDataReader> allMatches = this.executeQuery(String.Format("SELECT w_{0}, l_{0}, winner_id FROM {1} WHERE (winner_id = {2} OR loser_id = {2}) AND surface = {3}", valueKey.Value, "{0}", id, courtTypesKeys[court]));
@@ -404,7 +404,7 @@ namespace TennisDB
         //Returns the ratios of winning when serving 1st serve and ratios of winning when playing vs 1st serv
         //Item 1: Ratio of 1st serve won
         //Item 2: Ratio of winning vs 1st Serve
-        private Tuple<double, double> getRatioOfWinningVs1stServe(int id, CourtTypes court)
+        private Tuple<double, double> getRatioOfWinningVs1stServe(int id, Enums.CourtTypes court)
         {
             List<SqlDataReader> allMatches = this.executeQuery(String.Format("SELECT winner_id, w_1stIn, w_1stWon, l_1stIn, l_1stWon FROM {0} WHERE (winner_id = {1} OR loser_id = {1}) AND surface = {2}", "{0}", id, courtTypesKeys[court]));
 
@@ -465,7 +465,7 @@ namespace TennisDB
         }
 
         //The same as for the first serv but for the second. There is some difference in the query.
-        private Tuple<double, double> getRatioOfWinningVs2ndServe(int id, CourtTypes court)
+        private Tuple<double, double> getRatioOfWinningVs2ndServe(int id, Enums.CourtTypes court)
         {
             List<SqlDataReader> allMatches = this.executeQuery(String.Format("SELECT winner_id, (w_svpt- w_df - w_1stIn), w_2ndWon, (l_svpt- l_df - l_1stIn), l_2ndWon FROM {0} WHERE (winner_id = {1} OR loser_id = {1}) AND surface = {2}", "{0}", id, courtTypesKeys[court]));
 
@@ -528,7 +528,7 @@ namespace TennisDB
         //Returns how much break points per set avrgs
         //Item 1 break points made
         //Item 2 break points faced
-        private Tuple<double, double> getBreakPointsAvrgPerSet(int id, CourtTypes court)
+        private Tuple<double, double> getBreakPointsAvrgPerSet(int id, Enums.CourtTypes court)
         {
             List<SqlDataReader> allMatches = this.executeQuery(String.Format("SELECT winner_id, w_bpFaced, l_bpFaced FROM {0} WHERE (winner_id = {1} OR loser_id = {1}) AND surface = {2}", "{0}", id, courtTypesKeys[court]));
 
@@ -573,7 +573,7 @@ namespace TennisDB
         //Returns tuple of break points ratios
         //Item 1 the ratio of bp won
         //Item 2 the ratio of bp saved
-        private Tuple<double, double> getBreakPointsRatios(int id, CourtTypes court)
+        private Tuple<double, double> getBreakPointsRatios(int id, Enums.CourtTypes court)
         {
             List<SqlDataReader> allMatches = this.executeQuery(String.Format("SELECT winner_id, w_bpSaved, w_bpFaced, l_bpSaved, l_bpFaced FROM {0} WHERE (winner_id = {1} OR loser_id = {1}) AND surface = {2}", "{0}", id, courtTypesKeys[court]));
 
@@ -624,7 +624,7 @@ namespace TennisDB
                bpFacedSum>0 ? bpSavedSum / bpFacedSum : 0);
         }
 
-        private double getDonutRatio(int id, CourtTypes court)
+        private double getDonutRatio(int id, Enums.CourtTypes court)
         {
             List<SqlDataReader> allMatches = this.executeQuery(String.Format("SELECT score, winner_id FROM {0} WHERE (winner_id = {1} OR loser_id = {1}) AND surface = {2}", "{0}", id, courtTypesKeys[court]));
             double donuts = 0;
@@ -661,7 +661,7 @@ namespace TennisDB
             return this.playerStats[id].setsPlayed[court] > 0 ? donuts / this.playerStats[id].setsPlayed[court] : 0;
         }
 
-        private double getFirstServeInRatio(int id, CourtTypes court)
+        private double getFirstServeInRatio(int id, Enums.CourtTypes court)
         {
             List<SqlDataReader> allMatches = this.executeQuery(String.Format("SELECT winner_id, w_svpt, w_1stIn, l_svpt, l_1stIn FROM {0} WHERE (winner_id = {1} OR loser_id = {1}) AND surface = {2}", "{0}", id, courtTypesKeys[court]));
             double svPoints = 0;
@@ -708,205 +708,205 @@ namespace TennisDB
             connection.Open();
             foreach (int playerID in playersIDs)
             {
-                this.playerStats.Add(playerID, new PlayerStats());
+                this.playerStats.Add(playerID, new PlayerDynamicStats());
 
                 //Winning match rates
                 List<double> rates = this.calculateAllWinRates(playerID);
 
-                Dictionary<CourtTypes, double> straight3WinsRatesDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> straight3WinsRatesDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, this.getStraightSetsWin(playerID, DefaultTableKeys.WinnerID, 3,CourtTypes.CLAY) },
-                    {CourtTypes.HARD, this.getStraightSetsWin(playerID, DefaultTableKeys.WinnerID, 3,CourtTypes.HARD) },
-                    {CourtTypes.GRASS, this.getStraightSetsWin(playerID, DefaultTableKeys.WinnerID, 3,CourtTypes.GRASS) },
+                    {Enums.CourtTypes.CLAY, this.getStraightSetsWin(playerID, DefaultTableKeys.WinnerID, 3,Enums.CourtTypes.CLAY) },
+                    {Enums.CourtTypes.HARD, this.getStraightSetsWin(playerID, DefaultTableKeys.WinnerID, 3,Enums.CourtTypes.HARD) },
+                    {Enums.CourtTypes.GRASS, this.getStraightSetsWin(playerID, DefaultTableKeys.WinnerID, 3,Enums.CourtTypes.GRASS) },
                 };
 
-                Dictionary<CourtTypes, double> straight5WinsRatesDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> straight5WinsRatesDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, this.getStraightSetsWin(playerID, DefaultTableKeys.WinnerID, 5,CourtTypes.CLAY) },
-                    {CourtTypes.HARD, this.getStraightSetsWin(playerID, DefaultTableKeys.WinnerID, 5,CourtTypes.HARD) },
-                    {CourtTypes.GRASS, this.getStraightSetsWin(playerID, DefaultTableKeys.WinnerID, 5,CourtTypes.GRASS) },
+                    {Enums.CourtTypes.CLAY, this.getStraightSetsWin(playerID, DefaultTableKeys.WinnerID, 5,Enums.CourtTypes.CLAY) },
+                    {Enums.CourtTypes.HARD, this.getStraightSetsWin(playerID, DefaultTableKeys.WinnerID, 5,Enums.CourtTypes.HARD) },
+                    {Enums.CourtTypes.GRASS, this.getStraightSetsWin(playerID, DefaultTableKeys.WinnerID, 5,Enums.CourtTypes.GRASS) },
                 };
 
-                Dictionary<CourtTypes, double> straight3LosesRatesDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> straight3LosesRatesDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, this.getStraightSetsWin(playerID, DefaultTableKeys.LoserID, 3,CourtTypes.CLAY) },
-                    {CourtTypes.HARD, this.getStraightSetsWin(playerID, DefaultTableKeys.LoserID, 3,CourtTypes.HARD) },
-                    {CourtTypes.GRASS, this.getStraightSetsWin(playerID, DefaultTableKeys.LoserID, 3,CourtTypes.GRASS) },
+                    {Enums.CourtTypes.CLAY, this.getStraightSetsWin(playerID, DefaultTableKeys.LoserID, 3,Enums.CourtTypes.CLAY) },
+                    {Enums.CourtTypes.HARD, this.getStraightSetsWin(playerID, DefaultTableKeys.LoserID, 3,Enums.CourtTypes.HARD) },
+                    {Enums.CourtTypes.GRASS, this.getStraightSetsWin(playerID, DefaultTableKeys.LoserID, 3,Enums.CourtTypes.GRASS) },
                 };
 
-                Dictionary<CourtTypes, double> straight5LosesRatesDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> straight5LosesRatesDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, this.getStraightSetsWin(playerID, DefaultTableKeys.LoserID, 5,CourtTypes.CLAY) },
-                    {CourtTypes.HARD, this.getStraightSetsWin(playerID, DefaultTableKeys.LoserID, 5,CourtTypes.HARD) },
-                    {CourtTypes.GRASS, this.getStraightSetsWin(playerID, DefaultTableKeys.LoserID, 5,CourtTypes.GRASS) },
+                    {Enums.CourtTypes.CLAY, this.getStraightSetsWin(playerID, DefaultTableKeys.LoserID, 5,Enums.CourtTypes.CLAY) },
+                    {Enums.CourtTypes.HARD, this.getStraightSetsWin(playerID, DefaultTableKeys.LoserID, 5,Enums.CourtTypes.HARD) },
+                    {Enums.CourtTypes.GRASS, this.getStraightSetsWin(playerID, DefaultTableKeys.LoserID, 5,Enums.CourtTypes.GRASS) },
                 };
 
-                var moreThan4GamesRatesClay = getAtLeast4GamesWon(playerID, CourtTypes.CLAY);
-                var moreThan4GamesRatesHard = getAtLeast4GamesWon(playerID, CourtTypes.HARD);
-                var moreThan4GamesRatesGrass = getAtLeast4GamesWon(playerID, CourtTypes.GRASS);
+                var moreThan4GamesRatesClay = getAtLeast4GamesWon(playerID, Enums.CourtTypes.CLAY);
+                var moreThan4GamesRatesHard = getAtLeast4GamesWon(playerID, Enums.CourtTypes.HARD);
+                var moreThan4GamesRatesGrass = getAtLeast4GamesWon(playerID, Enums.CourtTypes.GRASS);
 
-                Dictionary<CourtTypes, double> letOpponentWin4GamesDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> letOpponentWin4GamesDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, moreThan4GamesRatesClay.Item1 },
-                    {CourtTypes.HARD, moreThan4GamesRatesHard.Item1 },
-                    {CourtTypes.GRASS, moreThan4GamesRatesHard.Item1 },
+                    {Enums.CourtTypes.CLAY, moreThan4GamesRatesClay.Item1 },
+                    {Enums.CourtTypes.HARD, moreThan4GamesRatesHard.Item1 },
+                    {Enums.CourtTypes.GRASS, moreThan4GamesRatesHard.Item1 },
                 };
 
-                Dictionary<CourtTypes, double> win4GamesWhenLostSetDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> win4GamesWhenLostSetDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, moreThan4GamesRatesClay.Item2 },
-                    {CourtTypes.HARD, moreThan4GamesRatesHard.Item2 },
-                    {CourtTypes.GRASS, moreThan4GamesRatesHard.Item2 },
+                    {Enums.CourtTypes.CLAY, moreThan4GamesRatesClay.Item2 },
+                    {Enums.CourtTypes.HARD, moreThan4GamesRatesHard.Item2 },
+                    {Enums.CourtTypes.GRASS, moreThan4GamesRatesHard.Item2 },
                 };
 
-                var tieBreakRatiosClay = getTieBreakRate(playerID, CourtTypes.CLAY);
-                var tieBreakRatiosHard = getTieBreakRate(playerID, CourtTypes.HARD);
-                var tieBreakRatiosGrass = getTieBreakRate(playerID, CourtTypes.GRASS);
+                var tieBreakRatiosClay = getTieBreakRate(playerID, Enums.CourtTypes.CLAY);
+                var tieBreakRatiosHard = getTieBreakRate(playerID, Enums.CourtTypes.HARD);
+                var tieBreakRatiosGrass = getTieBreakRate(playerID, Enums.CourtTypes.GRASS);
 
-                Dictionary<CourtTypes, double> tieBreakPlayRatioDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> tieBreakPlayRatioDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, tieBreakRatiosClay.Item1 },
-                    {CourtTypes.HARD, tieBreakRatiosHard.Item1 },
-                    {CourtTypes.GRASS, tieBreakRatiosGrass.Item1 },
+                    {Enums.CourtTypes.CLAY, tieBreakRatiosClay.Item1 },
+                    {Enums.CourtTypes.HARD, tieBreakRatiosHard.Item1 },
+                    {Enums.CourtTypes.GRASS, tieBreakRatiosGrass.Item1 },
                 };
 
-                Dictionary<CourtTypes, double> tieBreakWinRatioDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> tieBreakWinRatioDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, tieBreakRatiosClay.Item2 },
-                    {CourtTypes.HARD, tieBreakRatiosHard.Item2 },
-                    {CourtTypes.GRASS, tieBreakRatiosGrass.Item2 },
+                    {Enums.CourtTypes.CLAY, tieBreakRatiosClay.Item2 },
+                    {Enums.CourtTypes.HARD, tieBreakRatiosHard.Item2 },
+                    {Enums.CourtTypes.GRASS, tieBreakRatiosGrass.Item2 },
                 };
 
-                var acesAvrgPerSetClay = getValueAvrgPerSet(playerID, CourtTypes.CLAY, DefaultTableKeys.Aces);
-                var acesAvrgPerSetHard = getValueAvrgPerSet(playerID, CourtTypes.HARD, DefaultTableKeys.Aces);
-                var acesAvrgPerSetGrass = getValueAvrgPerSet(playerID, CourtTypes.GRASS, DefaultTableKeys.Aces);
+                var acesAvrgPerSetClay = getValueAvrgPerSet(playerID, Enums.CourtTypes.CLAY, DefaultTableKeys.Aces);
+                var acesAvrgPerSetHard = getValueAvrgPerSet(playerID, Enums.CourtTypes.HARD, DefaultTableKeys.Aces);
+                var acesAvrgPerSetGrass = getValueAvrgPerSet(playerID, Enums.CourtTypes.GRASS, DefaultTableKeys.Aces);
 
-                Dictionary<CourtTypes, double> acesAvrgPerSetDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> acesAvrgPerSetDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, acesAvrgPerSetClay },
-                    {CourtTypes.HARD, acesAvrgPerSetHard },
-                    {CourtTypes.GRASS, acesAvrgPerSetGrass },
+                    {Enums.CourtTypes.CLAY, acesAvrgPerSetClay },
+                    {Enums.CourtTypes.HARD, acesAvrgPerSetHard },
+                    {Enums.CourtTypes.GRASS, acesAvrgPerSetGrass },
                 };
 
-                var dfAvrgPerSetClay = getValueAvrgPerSet(playerID, CourtTypes.CLAY, DefaultTableKeys.DoubleFaults);
-                var dfAvrgPerSetHard = getValueAvrgPerSet(playerID, CourtTypes.HARD, DefaultTableKeys.DoubleFaults);
-                var dfAvrgPerSetGrass = getValueAvrgPerSet(playerID, CourtTypes.GRASS, DefaultTableKeys.DoubleFaults);
+                var dfAvrgPerSetClay = getValueAvrgPerSet(playerID, Enums.CourtTypes.CLAY, DefaultTableKeys.DoubleFaults);
+                var dfAvrgPerSetHard = getValueAvrgPerSet(playerID, Enums.CourtTypes.HARD, DefaultTableKeys.DoubleFaults);
+                var dfAvrgPerSetGrass = getValueAvrgPerSet(playerID, Enums.CourtTypes.GRASS, DefaultTableKeys.DoubleFaults);
 
-                Dictionary<CourtTypes, double> dfAvrgPerSetDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> dfAvrgPerSetDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, dfAvrgPerSetClay },
-                    {CourtTypes.HARD, dfAvrgPerSetHard },
-                    {CourtTypes.GRASS, dfAvrgPerSetGrass },
+                    {Enums.CourtTypes.CLAY, dfAvrgPerSetClay },
+                    {Enums.CourtTypes.HARD, dfAvrgPerSetHard },
+                    {Enums.CourtTypes.GRASS, dfAvrgPerSetGrass },
                 };
 
-                var pointsServedClay = getValueAvrgPerSet(playerID, CourtTypes.CLAY, DefaultTableKeys.Served);
-                var pointsServedHard = getValueAvrgPerSet(playerID, CourtTypes.HARD, DefaultTableKeys.Served);
-                var pointsServedGrass = getValueAvrgPerSet(playerID, CourtTypes.GRASS, DefaultTableKeys.Served);
+                var pointsServedClay = getValueAvrgPerSet(playerID, Enums.CourtTypes.CLAY, DefaultTableKeys.Served);
+                var pointsServedHard = getValueAvrgPerSet(playerID, Enums.CourtTypes.HARD, DefaultTableKeys.Served);
+                var pointsServedGrass = getValueAvrgPerSet(playerID, Enums.CourtTypes.GRASS, DefaultTableKeys.Served);
 
-                Dictionary<CourtTypes, double> pointsServedPerSetDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> pointsServedPerSetDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, pointsServedClay },
-                    {CourtTypes.HARD, pointsServedHard },
-                    {CourtTypes.GRASS, pointsServedGrass },
+                    {Enums.CourtTypes.CLAY, pointsServedClay },
+                    {Enums.CourtTypes.HARD, pointsServedHard },
+                    {Enums.CourtTypes.GRASS, pointsServedGrass },
                 };
 
-                var fstSrvWinClay = getRatioOfWinningVs1stServe(playerID, CourtTypes.CLAY);
-                var fstSrvWinHard = getRatioOfWinningVs1stServe(playerID, CourtTypes.HARD);
-                var fstSrvWinGrass = getRatioOfWinningVs1stServe(playerID, CourtTypes.GRASS);
+                var fstSrvWinClay = getRatioOfWinningVs1stServe(playerID, Enums.CourtTypes.CLAY);
+                var fstSrvWinHard = getRatioOfWinningVs1stServe(playerID, Enums.CourtTypes.HARD);
+                var fstSrvWinGrass = getRatioOfWinningVs1stServe(playerID, Enums.CourtTypes.GRASS);
 
-                Dictionary<CourtTypes, double> firstServeWinRatioDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> firstServeWinRatioDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, fstSrvWinClay.Item1 },
-                    {CourtTypes.HARD, fstSrvWinHard.Item1 },
-                    {CourtTypes.GRASS, fstSrvWinGrass.Item1 },
+                    {Enums.CourtTypes.CLAY, fstSrvWinClay.Item1 },
+                    {Enums.CourtTypes.HARD, fstSrvWinHard.Item1 },
+                    {Enums.CourtTypes.GRASS, fstSrvWinGrass.Item1 },
                 };
 
-                Dictionary<CourtTypes, double> wonVsFirstServeRatiosDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> wonVsFirstServeRatiosDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, fstSrvWinClay.Item2 },
-                    {CourtTypes.HARD, fstSrvWinHard.Item2 },
-                    {CourtTypes.GRASS, fstSrvWinGrass.Item2 },
+                    {Enums.CourtTypes.CLAY, fstSrvWinClay.Item2 },
+                    {Enums.CourtTypes.HARD, fstSrvWinHard.Item2 },
+                    {Enums.CourtTypes.GRASS, fstSrvWinGrass.Item2 },
                 };
 
-                var sndSrvClay = getRatioOfWinningVs2ndServe(playerID, CourtTypes.CLAY);
-                var sndSrvHard = getRatioOfWinningVs2ndServe(playerID, CourtTypes.HARD);
-                var sndSrvGrass = getRatioOfWinningVs2ndServe(playerID, CourtTypes.GRASS);
+                var sndSrvClay = getRatioOfWinningVs2ndServe(playerID, Enums.CourtTypes.CLAY);
+                var sndSrvHard = getRatioOfWinningVs2ndServe(playerID, Enums.CourtTypes.HARD);
+                var sndSrvGrass = getRatioOfWinningVs2ndServe(playerID, Enums.CourtTypes.GRASS);
 
-                Dictionary<CourtTypes, double> secondServeWinRatioDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> secondServeWinRatioDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, sndSrvClay.Item1 },
-                    {CourtTypes.HARD, sndSrvHard.Item1 },
-                    {CourtTypes.GRASS, sndSrvGrass.Item1 },
+                    {Enums.CourtTypes.CLAY, sndSrvClay.Item1 },
+                    {Enums.CourtTypes.HARD, sndSrvHard.Item1 },
+                    {Enums.CourtTypes.GRASS, sndSrvGrass.Item1 },
                 };
 
-                Dictionary<CourtTypes, double> wonVsSecondServeRatiosDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> wonVsSecondServeRatiosDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, sndSrvClay.Item2 },
-                    {CourtTypes.HARD, sndSrvHard.Item2 },
-                    {CourtTypes.GRASS, sndSrvGrass.Item2 },
+                    {Enums.CourtTypes.CLAY, sndSrvClay.Item2 },
+                    {Enums.CourtTypes.HARD, sndSrvHard.Item2 },
+                    {Enums.CourtTypes.GRASS, sndSrvGrass.Item2 },
                 };
 
-                var bpClay = getBreakPointsAvrgPerSet(playerID, CourtTypes.CLAY);
-                var bpHard = getBreakPointsAvrgPerSet(playerID, CourtTypes.HARD);
-                var bpGrass = getBreakPointsAvrgPerSet(playerID, CourtTypes.GRASS);
+                var bpClay = getBreakPointsAvrgPerSet(playerID, Enums.CourtTypes.CLAY);
+                var bpHard = getBreakPointsAvrgPerSet(playerID, Enums.CourtTypes.HARD);
+                var bpGrass = getBreakPointsAvrgPerSet(playerID, Enums.CourtTypes.GRASS);
 
-                Dictionary<CourtTypes, double> bpMadePerSetDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> bpMadePerSetDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, bpClay.Item1 },
-                    {CourtTypes.HARD, bpHard.Item1 },
-                    {CourtTypes.GRASS, bpGrass.Item1 },
+                    {Enums.CourtTypes.CLAY, bpClay.Item1 },
+                    {Enums.CourtTypes.HARD, bpHard.Item1 },
+                    {Enums.CourtTypes.GRASS, bpGrass.Item1 },
                 };
 
-                Dictionary<CourtTypes, double> bpFacedPerSetDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> bpFacedPerSetDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, bpClay.Item2 },
-                    {CourtTypes.HARD, bpHard.Item2 },
-                    {CourtTypes.GRASS, bpGrass.Item2 },
+                    {Enums.CourtTypes.CLAY, bpClay.Item2 },
+                    {Enums.CourtTypes.HARD, bpHard.Item2 },
+                    {Enums.CourtTypes.GRASS, bpGrass.Item2 },
                 };
 
-                var bpRatesClay = getBreakPointsRatios(playerID, CourtTypes.CLAY);
-                var bpRatesHard = getBreakPointsRatios(playerID, CourtTypes.HARD);
-                var bpRatesGrass = getBreakPointsRatios(playerID, CourtTypes.GRASS);
+                var bpRatesClay = getBreakPointsRatios(playerID, Enums.CourtTypes.CLAY);
+                var bpRatesHard = getBreakPointsRatios(playerID, Enums.CourtTypes.HARD);
+                var bpRatesGrass = getBreakPointsRatios(playerID, Enums.CourtTypes.GRASS);
 
-                Dictionary<CourtTypes, double> bpWonRatesDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> bpWonRatesDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, bpRatesClay.Item1 },
-                    {CourtTypes.HARD, bpRatesHard.Item1 },
-                    {CourtTypes.GRASS, bpRatesGrass.Item1 },
+                    {Enums.CourtTypes.CLAY, bpRatesClay.Item1 },
+                    {Enums.CourtTypes.HARD, bpRatesHard.Item1 },
+                    {Enums.CourtTypes.GRASS, bpRatesGrass.Item1 },
                 };
 
-                Dictionary<CourtTypes, double> bpSavedRatesDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> bpSavedRatesDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, bpRatesClay.Item2 },
-                    {CourtTypes.HARD, bpRatesHard.Item2 },
-                    {CourtTypes.GRASS, bpRatesGrass.Item2 },
+                    {Enums.CourtTypes.CLAY, bpRatesClay.Item2 },
+                    {Enums.CourtTypes.HARD, bpRatesHard.Item2 },
+                    {Enums.CourtTypes.GRASS, bpRatesGrass.Item2 },
                 };
 
-                var donutClayRatio = getDonutRatio(playerID, CourtTypes.CLAY);
-                var donutHardRatio = getDonutRatio(playerID, CourtTypes.HARD);
-                var donutGrassRatio = getDonutRatio(playerID, CourtTypes.GRASS);
+                var donutClayRatio = getDonutRatio(playerID, Enums.CourtTypes.CLAY);
+                var donutHardRatio = getDonutRatio(playerID, Enums.CourtTypes.HARD);
+                var donutGrassRatio = getDonutRatio(playerID, Enums.CourtTypes.GRASS);
 
-                Dictionary<CourtTypes, double> donutRatiosDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> donutRatiosDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, donutClayRatio },
-                    {CourtTypes.HARD, donutHardRatio },
-                    {CourtTypes.GRASS, donutGrassRatio },
+                    {Enums.CourtTypes.CLAY, donutClayRatio },
+                    {Enums.CourtTypes.HARD, donutHardRatio },
+                    {Enums.CourtTypes.GRASS, donutGrassRatio },
                 };
 
-                var firstSvInClay = getFirstServeInRatio(playerID, CourtTypes.CLAY);
-                var firstSvInHard = getFirstServeInRatio(playerID, CourtTypes.HARD);
-                var firstSvInGrass = getFirstServeInRatio(playerID, CourtTypes.GRASS);
+                var firstSvInClay = getFirstServeInRatio(playerID, Enums.CourtTypes.CLAY);
+                var firstSvInHard = getFirstServeInRatio(playerID, Enums.CourtTypes.HARD);
+                var firstSvInGrass = getFirstServeInRatio(playerID, Enums.CourtTypes.GRASS);
 
-                Dictionary<CourtTypes, double> firstServeInRatioDic = new Dictionary<CourtTypes, double>
+                Dictionary<Enums.CourtTypes, double> firstServeInRatioDic = new Dictionary<Enums.CourtTypes, double>
                 {
-                    {CourtTypes.CLAY, firstSvInClay },
-                    {CourtTypes.HARD, firstSvInHard },
-                    {CourtTypes.GRASS, firstSvInGrass },
+                    {Enums.CourtTypes.CLAY, firstSvInClay },
+                    {Enums.CourtTypes.HARD, firstSvInHard },
+                    {Enums.CourtTypes.GRASS, firstSvInGrass },
                 };
 
-                playerReaded.Add(new TennisPlayer(playerID, 0, new WinRates(rates[3], rates[2], rates[0], rates[1]), straight3WinsRatesDic, straight3LosesRatesDic, straight5WinsRatesDic, straight5LosesRatesDic,
-                    donutRatiosDic, letOpponentWin4GamesDic, win4GamesWhenLostSetDic, tieBreakPlayRatioDic, tieBreakWinRatioDic, pointsServedPerSetDic, acesAvrgPerSetDic, dfAvrgPerSetDic, firstServeInRatioDic,
-                    firstServeWinRatioDic, wonVsFirstServeRatiosDic, secondServeWinRatioDic, wonVsSecondServeRatiosDic, bpMadePerSetDic, bpFacedPerSetDic, bpWonRatesDic, bpSavedRatesDic
+                playerReaded.Add(new TennisPlayer(playerID, 0, new WinRates(rates[3], rates[2], rates[0], rates[1]), new StraightSetsRates(straight3WinsRatesDic, straight3LosesRatesDic, straight5WinsRatesDic, straight5LosesRatesDic),
+                    new GamesNumberRates(donutRatiosDic, letOpponentWin4GamesDic, win4GamesWhenLostSetDic), new TieBreakRates(tieBreakPlayRatioDic, tieBreakWinRatioDic),new SetAvrgs(pointsServedPerSetDic, acesAvrgPerSetDic, dfAvrgPerSetDic, bpMadePerSetDic, bpFacedPerSetDic), 
+                    new ServeGameRates(firstServeInRatioDic, firstServeWinRatioDic, secondServeWinRatioDic), new ReturnGameRates(wonVsFirstServeRatiosDic, wonVsSecondServeRatiosDic), new BreakPointsRates(bpWonRatesDic, bpSavedRatesDic)
                     ));
             }
 
@@ -916,7 +916,7 @@ namespace TennisDB
         }
 
         //Returns the H2H stats for player 1 and player 2 depending on player 1 for last 10 matches and given type of court
-        public H2HStats getH2HStats(int idPlayer1, int idPlayer2, CourtTypes courtType)
+        public H2HStats getH2HStats(int idPlayer1, int idPlayer2, Enums.CourtTypes courtType)
         {
             connection.Open();
 

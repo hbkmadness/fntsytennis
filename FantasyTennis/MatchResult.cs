@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace FantasyTennis
 {
-    class MatchResult
+    public class MatchResult
     {
         public int winnerID;
         public double winnerPoints = 0;
