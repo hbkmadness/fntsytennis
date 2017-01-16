@@ -7,3 +7,21 @@ c:\users\skalov\documents\visual studio 2015\Projects\FantasyTennisGame\obj\Debu
 c:\users\skalov\documents\visual studio 2015\Projects\FantasyTennisGame\obj\Debug\FantasyTennisGame.exe
 c:\users\skalov\documents\visual studio 2015\Projects\FantasyTennisGame\obj\Debug\FantasyTennisGame.pdb
 c:\users\skalov\documents\visual studio 2015\Projects\FantasyTennisGame\obj\Debug\FantasyTennisGame.Form1.resources
+C:\Users\Slavi\Documents\Visual Studio 2013\Projects\fntsytennis\bin\Debug\FantasyTennisGame.exe.config
+C:\Users\Slavi\Documents\Visual Studio 2013\Projects\fntsytennis\obj\Debug\FantasyTennisGame.exe
+C:\Users\Slavi\Documents\Visual Studio 2013\Projects\fntsytennis\obj\Debug\FantasyTennisGame.pdb
+C:\Users\Slavi\Documents\Visual Studio 2013\Projects\fntsytennis\bin\Debug\FantasyTennisGame.exe
+C:\Users\Slavi\Documents\Visual Studio 2013\Projects\fntsytennis\bin\Debug\FantasyTennisGame.pdb
+C:\Users\Slavi\Documents\Visual Studio 2013\Projects\fntsytennis\obj\Debug\FantasyTennisGame.csprojResolveAssemblyReference.cache
+C:\Users\Slavi\Documents\Visual Studio 2013\Projects\fntsytennis\obj\Debug\FantasyTennisGame.Form1.resources
+C:\Users\Slavi\Documents\Visual Studio 2013\Projects\fntsytennis\obj\Debug\FantasyTennisGame.Properties.Resources.resources
+C:\Users\Slavi\Documents\Visual Studio 2013\Projects\fntsytennis\obj\Debug\FantasyTennisGame.csproj.GenerateResource.Cache
+C:\Users\Slavi\Desktop\Universitet\PhD\fntsytennis\bin\Debug\FantasyTennisGame.exe.config
+C:\Users\Slavi\Desktop\Universitet\PhD\fntsytennis\obj\Debug\FantasyTennisGame.exe
+C:\Users\Slavi\Desktop\Universitet\PhD\fntsytennis\obj\Debug\FantasyTennisGame.pdb
+C:\Users\Slavi\Desktop\Universitet\PhD\fntsytennis\bin\Debug\FantasyTennisGame.exe
+C:\Users\Slavi\Desktop\Universitet\PhD\fntsytennis\bin\Debug\FantasyTennisGame.pdb
+C:\Users\Slavi\Desktop\Universitet\PhD\fntsytennis\obj\Debug\FantasyTennisGame.csprojResolveAssemblyReference.cache
+C:\Users\Slavi\Desktop\Universitet\PhD\fntsytennis\obj\Debug\FantasyTennisGame.Form1.resources
+C:\Users\Slavi\Desktop\Universitet\PhD\fntsytennis\obj\Debug\FantasyTennisGame.Properties.Resources.resources
+C:\Users\Slavi\Desktop\Universitet\PhD\fntsytennis\obj\Debug\FantasyTennisGame.csproj.GenerateResource.Cache

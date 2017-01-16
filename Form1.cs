@@ -63,8 +63,8 @@ namespace FantasyTennisGame
 
                 matches.ForEach((match) =>
                 {
-                    string name1 = TennisDB.IDToName.idToName[match.p1.id];
-                    string name2 = TennisDB.IDToName.idToName[match.p2.id];
+                    string name1 = TennisDB.IDToName.idToNameMales[match.p1.id];
+                    string name2 = TennisDB.IDToName.idToNameMales[match.p2.id];
                     Label label1, label2;
                     if (positionLabels == null)
                     {
@@ -96,7 +96,7 @@ namespace FantasyTennisGame
                 currentX += nextRoundJump;
             }
 
-            this.addLabelAtLocation(String.Format("CHAMPION: {0}", TennisDB.IDToName.idToName[tree.root.winner.id]), new Point(currentX, (currentY+smallJumpY)/2));
+            this.addLabelAtLocation(String.Format("CHAMPION: {0}", TennisDB.IDToName.idToNameMales[tree.root.winner.id]), new Point(currentX, (currentY+smallJumpY)/2));
 
         }
     }

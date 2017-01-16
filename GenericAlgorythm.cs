@@ -16,10 +16,10 @@ namespace FantasyTennis
         public BagItemsStorage storage;
         public SortedSet<Bag> population;
 
-        public GenericAlgorythm()
+        public GenericAlgorythm(IEnumerable<KeyValuePair<int, double>> playersStats, FantasyGames game)
         {
             this.population = new SortedSet<Bag>(new BagComparer());
-            this.storage = new BagItemsStorage();
+            this.storage = new BagItemsStorage(playersStats, game);
             this.maxPopulation = 5;
         }
 
@@ -27,7 +27,7 @@ namespace FantasyTennis
         {
             Random rndmizer = new Random();
             long i = 0;
-            for (i = 0; i < 100000000; i++)
+            for (i = 0; i < 1000; i++)
             {
                 HashSet<int> indexes = new HashSet<int>();
                 while (indexes.Count < GenericAlgorythm.ITEMS_PER_BAG)
@@ -73,10 +73,9 @@ namespace FantasyTennis
                     newBag.addItem(bag1.content.ElementAt(j));
                 }
 
-                for (int j = 0; j < GenericAlgorythm.ITEMS_PER_BAG; j++)
+                for (int j = 0; j < bag2.content.Count; j++)
                 {
                     BagItem item = bag2.content.ElementAt(j);
-                    bool contains = false;
                     newBag.addItem(item);
                 }
 

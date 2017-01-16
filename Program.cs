@@ -45,16 +45,16 @@ namespace FantasyTennis
         }
 
         //Generates random players where it should in the list
-        static List<int> generateRandomPlayers(List<int> ids)
+        static List<int> generateRandomPlayers(List<int> ids, bool males = true)
         {
             Random rnd = new Random();
             var idsArray = ids.ToArray();
             for (int i = 0; i < ids.Count; i++)
             {
-                if(idsArray[i] == -2)
+                if (idsArray[i] == -2)
                 {
-                    int rndNum = rnd.Next(TennisDB.AvrgPlayers.avrgIDs.Count);
-                    idsArray[i] = TennisDB.AvrgPlayers.avrgIDs.ElementAt(rndNum);
+                    int rndNum = rnd.Next(males ? TennisDB.AvrgPlayers.avrgIDsMales.Count : TennisDB.AvrgPlayers.avrgIDsFemales.Count);
+                    idsArray[i] = males ? TennisDB.AvrgPlayers.avrgIDsMales.ElementAt(rndNum) : TennisDB.AvrgPlayers.avrgIDsFemales.ElementAt(rndNum);
                 }
             }
 
@@ -67,74 +67,119 @@ namespace FantasyTennis
         [STAThread]
         static void Main()
         {
-            //GenericAlgorythm gen = new GenericAlgorythm();
-            //gen.populate();
-            //gen.runAlgorythm();
+            TennisDB.DataReader dbMales = new TennisDB.DataReader();
+            TennisDB.DataReader dbFemales = new TennisDB.DataReader(false);
 
-            //Console.Write("The new max Value is: " + gen.population.Max.getSumValues() + "\n");
-            //Console.Write("With Price of: " + gen.population.Max.getSumPrice() + "\n");
-            //Console.Write("With Ids: \n");
-            //gen.population.Max.content.ForEach((item) =>
-            //{
-            //    Console.Write(item.id + "\n");
-            //});
-
-
-            TennisDB.DataReader db = new TennisDB.DataReader();
             BinaryFormatter bf = new BinaryFormatter();
 
             //UNCOMMENT THIS SO YOU CAN MAKE A NEW PLAYER DB
 
-            //FileStream fs = new FileStream("playersStats.dat", FileMode.Create);
-            //var players = db.execute();
-            //bf.Serialize(fs, players);
+            //FileStream fsMales = new FileStream("playersStatsMales.dat", FileMode.Create);
+            //FileStream fsFemales = new FileStream("playersStatsFemales.dat", FileMode.Create);
+
+            //var playersMales = dbMales.execute();
+            //var playersFemales = dbFemales.execute();
+
+            //bf.Serialize(fsMales, playersMales);
+            //bf.Serialize(fsFemales, playersFemales);
 
             //----------------------------------------
 
 
             //COMMENT THIS WHEN YOU MAKE THE DB AND THEN JUST UNCOMMENT IT SO IT READS FROM THE FILE DIRECTLY
 
-            FileStream fs = new FileStream("playersStats.dat", FileMode.Open);
-            var players = (List<TennisDB.TennisPlayer>)bf.Deserialize(fs);
+            FileStream fsMales = new FileStream("playersStatsMales.dat", FileMode.Open);
+            FileStream fsFemales = new FileStream("playersStatsFemales.dat", FileMode.Open);
+
+            var playersMales = (List<TennisDB.TennisPlayer>)bf.Deserialize(fsMales);
+            var playersFemales = (List<TennisDB.TennisPlayer>)bf.Deserialize(fsFemales);
 
             //-------------------------------------------------------------------------
 
-            List<int> ids = new List<int> {
-                104925,-2, -2,-2, -2,-2, -2,-2, 103333,-2, -2,-2, -2,-2, -2,-2,
-                104542,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,105453,
-                103819,-2, -2,-2, -2,-2, -2, 105777, 106233,-2, -2,-2, -2,-2, -2,105676,
-                105227,-2, -2,-2, -2,-2, -2,105138, 106401,-2, -2,104655, -2,-2, -2,104607,
-                104745,-2, -2,-2, -2,-2, -2,-2, 104792,-2, -2,-2, -2,-2, -2,-2,
-                105683,106298, -2,-2, -2,-2, -2,-2, 106058,-2, -2,-2, -2,-2, -2,104527,
-                -2,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,104545,
-                -2,-2, -2,-2, -2,-2, 104180,-2, -2,-2, -2,-2, -2,-2, 100644,104918
+            List<int> idsMales = new List<int> {
+                104918,-2, -2,-2, -2,-2, -2,-2, 104545,-2, -2,-2, -2,-2, -2,106298,
+                104607,-2, -2,-2, -2,-2, -2,103819, -2,-2, -2,-2, -2,-2, -2,105453,
+                104527,-2, -2,-2, -2,-2, -2,-2, 104655,-2, -2,-2, -2,-2, -2,106401,
+                104542,-2, -2,-2, -2,-2, -2,106058, -2,-2, -2,-2, -2,-2, -2,105227,
+                104792,-2, -2,-2, -2,-2, -2,-2, 100644,-2, -2,-2, -2,-2, -2,104745,
+                105138,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,-2, 104180,-2, -2,105683,
+                106233,-2, -2,-2, -2,-2, -2,-2, 103333,-2, -2,-2, -2,-2 ,-2,105676,
+                105777,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,104925
             };
-            ids = Program.generateRandomPlayers(ids);
+            idsMales = Program.generateRandomPlayers(idsMales);
+            var listWithMatchesMales = Program.generateMatches(idsMales, playersMales);
 
-            var listWithMatches = Program.generateMatches(ids, players);
+            List<int> idsFemales = new List<int> {
+                201493,-2, -2,-2, -2,203530, -2,-2, 214082,-2, -2,-2, -2,-2, -2,-2,
+                201521,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,202469,
+                201594,-2, -2,-2, -2,-2, -2,-2, 202428,-2, -2,-2, -2,-2, -2,200748,
+                202494,-2, -2,-2, -2,-2, -2,-2, 201696,-2, -2,-2, -2,-2, -2,201320,
+                201662,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,201490,
+                201455,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,201474,
+                201495,-2, -2,-2, -2,-2, -2,-2, 201496,-2, -2,-2, -2,211768, -2,202427,
+                201366,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,-2, -2,200033
 
-            Dictionary<int, int> dc = new Dictionary<int, int>();
+            };
+            idsFemales = Program.generateRandomPlayers(idsFemales, false);
+            var listWithMatchesFemales = Program.generateMatches(idsFemales, playersFemales);
 
-            for (int i = 0; i < 5000; i++)
+            Dictionary<int, double> pointsPerId = new Dictionary<int, double>();
+
+            int tournamentsNumber = 1000000;
+            //Simulate all the tournaments
+            for (int i = 0; i < tournamentsNumber; i++)
             {
-                Tournament tournament = new Tournament(db, players, listWithMatches, 30, 16, TennisDB.CourtTypes.HARD, true, true);
+                Tournament tournament = new Tournament(dbMales, playersMales, listWithMatchesMales, 60, 36, TennisDB.CourtTypes.HARD, true, true);
+                Tournament tournamentFemales = new Tournament(dbFemales, playersFemales, listWithMatchesFemales, 60, 36, TennisDB.CourtTypes.HARD, true, false);
 
-                tournament.simulateTournament();
+                List<Tournament> allTournaments = new List<Tournament>() {tournament, tournamentFemales };
+                allTournaments.ForEach((tourn) =>
+                {
+                    tourn.simulateTournament();
 
-                if (dc.ContainsKey(tournament.draws.root.winner.id))
-                {
-                    dc[tournament.draws.root.winner.id]++;
-                }
-                else
-                {
-                    dc.Add(tournament.draws.root.winner.id, 1);
-                }
+                    foreach (var entry in tourn.playerPoints)
+                    {
+                        if (pointsPerId.ContainsKey(entry.Key))
+                        {
+                            pointsPerId[entry.Key] += entry.Value;
+                        }
+                        else
+                        {
+                            pointsPerId.Add(entry.Key, entry.Value);
+                        }
+                    }
+                });
             }
 
-            foreach (var entry in dc)
+            //make the results with avrg score
+            var keys = new List<int>(pointsPerId.Keys);
+            foreach (var key in keys)
             {
-                Console.WriteLine("{0} have won {1} Tournements, interesting indeed, much info, big funny.", TennisDB.IDToName.idToName[entry.Key], entry.Value);
+                pointsPerId[key] = pointsPerId[key] / tournamentsNumber;
             }
+
+            var filteredPointsPerID = pointsPerId.Where((pair) =>
+            {
+                return !TennisDB.AvrgPlayers.avrgIDsMales.Contains(pair.Key) && !TennisDB.AvrgPlayers.avrgIDsFemales.Contains(pair.Key);
+            });
+
+            //show results
+            foreach (var entry in filteredPointsPerID.OrderByDescending((pair) => pair.Value))
+            {
+                Console.WriteLine("{0} have won {1} Tournement points average, interesting indeed, much info, big funny.", TennisDB.IDToName.iDToName(entry.Key), entry.Value);
+            }
+
+            GenericAlgorythm gen = new GenericAlgorythm(filteredPointsPerID, FantasyGames.FANTASY_LEAGUE);
+            gen.populate();
+            gen.runAlgorythm();
+
+            Console.Write("The new max Value is: " + gen.population.Max.getSumValues() + "\n");
+            Console.Write("With Price of: " + gen.population.Max.getSumPrice() + "\n");
+            Console.Write("With Ids: \n");
+            gen.population.Max.content.ForEach((item) =>
+            {
+                Console.Write(TennisDB.IDToName.iDToName(item.id) + "\n");
+            });
 
             //Tournament tournament = new Tournament(db, players, listWithMatches, 30, 16, TennisDB.CourtTypes.HARD, true, true);
             //tournament.simulateTournament();

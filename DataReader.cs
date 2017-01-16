@@ -9,8 +9,13 @@ using System.Threading.Tasks;
 
 namespace TennisDB
 {
-   public class DataReader
+    public class DataReader
     {
+        public static List<String> tableNamesMan = new List<string> { "atp_matches_2016$", "atp_matches_2015$", "atp_matches_2014$", "atp_matches_2013$", "atp_matches_2012$", "atp_matches_2011$",
+                "atp_matches_2010$", "atp_matches_2009$", "atp_matches_2008$","atp_matches_2007$","atp_matches_2006$" };
+
+        public static List<String> tableNamesWoman = new List<string> { "wta_matches_2016$", "wta_matches_2015$", "wta_matches_2014$", "wta_matches_2013$", "wta_matches_2012$", "wta_matches_2011$" };
+
         //the connection with the db
         SqlConnection connection;
         //all names of the tables that are going to be used for the queries
@@ -23,18 +28,17 @@ namespace TennisDB
         //Dictionary that holds for each id some basic stats that were calculated at some point of the program running, this is used so no additional queries will be needed after the first one
         Dictionary<int, PlayerStats> playerStats;
 
-        public DataReader()
+        public DataReader(bool male = true)
         {
-            connection = new SqlConnection("Server=.\\SQLEXPRESS;Database=TestDB;Trusted_Connection=True;MultipleActiveResultSets=true;");
+            connection = new SqlConnection("Integrated Security=SSPI;Persist Security Info=False;Initial Catalog=TestDB;Data Source=SLAVI-PC;MultipleActiveResultSets=true;");
 
-            tablesNames = new List<string> { "atp_matches_2016$", "atp_matches_2015$", "atp_matches_2014$", "atp_matches_2013$", "atp_matches_2012$", "atp_matches_2011$",
-                "atp_matches_2010$", "atp_matches_2009$", "atp_matches_2008$","atp_matches_2007$","atp_matches_2006$" };
+            tablesNames = male ? DataReader.tableNamesMan : DataReader.tableNamesWoman;
 
             courtTypesKeys = new Dictionary<CourtTypes, string> { { CourtTypes.CLAY, "'Clay'" }, { CourtTypes.HARD, "'Hard'" }, { CourtTypes.GRASS, "'Grass'" } };
 
             playersIDs = new List<int>();
 
-            foreach (var entry in IDToName.idToName)
+            foreach (var entry in male ? IDToName.idToNameMales : IDToName.idToNameFemales)
             {
                 playersIDs.Add(entry.Key);
             }
@@ -42,7 +46,7 @@ namespace TennisDB
             playerStats = new Dictionary<int, PlayerStats>();
         }
 
-        private List<SqlDataReader> executeQuery(string query, int lastYears = 100)
+        private List<SqlDataReader> executeQuery(string query, int lastYears = 6)
         {
             List<SqlDataReader> returnList = new List<SqlDataReader>();
             int counter = 0;
@@ -52,7 +56,14 @@ namespace TennisDB
                 if (counter < lastYears)
                 {
                     SqlCommand cmd = new SqlCommand(String.Format(query, table), connection);
-                    returnList.Add(cmd.ExecuteReader());
+                    try
+                    {
+                        returnList.Add(cmd.ExecuteReader());
+                    }
+                    catch (System.Data.SqlClient.SqlException exc)
+                    {
+
+                    }
                     counter++;
                 }
 
@@ -91,7 +102,7 @@ namespace TennisDB
 
             numberMatches = matchesWon + matchesLost;
 
-            return matchesWon / numberMatches;
+            return numberMatches > 0 ? matchesWon / numberMatches : 0;
         }
 
         private double calculateDefaultWinRate(int id)
@@ -124,7 +135,7 @@ namespace TennisDB
 
             numberMatches = matchesWon + matchesLost;
 
-            return matchesWon / numberMatches;
+            return numberMatches > 0 ? matchesWon / numberMatches : 0;
         }
 
         private List<double> calculateAllWinRates(int id)
@@ -215,7 +226,7 @@ namespace TennisDB
 
             });
 
-            return straightWinsCount / matchCount;
+            return matchCount > 0 ? straightWinsCount / matchCount : 0;
         }
 
         //Returns a tuple of the rates that the player let the opponent wins at least 4 games when a sets is won or he wins 4 sets when loses
@@ -288,7 +299,8 @@ namespace TennisDB
                 }
             });
 
-            return new Tuple<double, double>(setsLetOpponentHave4Games / setsWonCount, setsWonAtLeast4Games / setsLostCount);
+            return new Tuple<double, double>(setsWonCount>0 ?setsLetOpponentHave4Games / setsWonCount : 0,
+                setsLostCount>0? setsWonAtLeast4Games / setsLostCount : 0);
         }
 
         //Returns a tuple with
@@ -343,7 +355,8 @@ namespace TennisDB
 
             this.playerStats[id].setsPlayed[court] = allSetsPlayed;
 
-            return new Tuple<double, double>(tieBreaksPlayed / allSetsPlayed, tieBreaksWon / tieBreaksPlayed);
+            return new Tuple<double, double>(allSetsPlayed > 0 ? tieBreaksPlayed / allSetsPlayed : 0,
+               tieBreaksPlayed>0 ? tieBreaksWon / tieBreaksPlayed : 0);
         }
 
         //Returns the avrg per set number for specific value key from the table. Used for aces, doublefaults and etc.
@@ -385,7 +398,7 @@ namespace TennisDB
                 }
             });
 
-            return numOfValues / this.playerStats[id].setsPlayed[court];
+            return this.playerStats[id].setsPlayed[court] > 0 ? numOfValues / this.playerStats[id].setsPlayed[court] : 0;
         }
 
         //Returns the ratios of winning when serving 1st serve and ratios of winning when playing vs 1st serv
@@ -447,7 +460,8 @@ namespace TennisDB
                 }
             });
 
-            return new Tuple<double, double>(firstServesWonSum / firstServesSum, firstServesPlayedAgaintsWonSum / firstServesPlayedAgaintsSum);
+            return new Tuple<double, double>(firstServesSum > 0 ? firstServesWonSum / firstServesSum : 0,
+                firstServesPlayedAgaintsSum>0 ? firstServesPlayedAgaintsWonSum / firstServesPlayedAgaintsSum : 0);
         }
 
         //The same as for the first serv but for the second. There is some difference in the query.
@@ -507,7 +521,8 @@ namespace TennisDB
                 }
             });
 
-            return new Tuple<double, double>(secondServesWonSum / secondServesSum, secondServesPlayedAgaintsWonSum / secondServesPlayedAgaintsSum);
+            return new Tuple<double, double>(secondServesSum>0? secondServesWonSum / secondServesSum : 0,
+                secondServesPlayedAgaintsSum>0? secondServesPlayedAgaintsWonSum / secondServesPlayedAgaintsSum : 0);
         }
 
         //Returns how much break points per set avrgs
@@ -551,7 +566,8 @@ namespace TennisDB
                 }
             });
 
-            return new Tuple<double, double>(bpMadeSum / this.playerStats[id].setsPlayed[court], bpFacedSum / this.playerStats[id].setsPlayed[court]);
+            return new Tuple<double, double>(this.playerStats[id].setsPlayed[court] > 0 ? bpMadeSum / this.playerStats[id].setsPlayed[court] : 0,
+               this.playerStats[id].setsPlayed[court] > 0 ? bpFacedSum / this.playerStats[id].setsPlayed[court] : 0);
         }
 
         //Returns tuple of break points ratios
@@ -604,7 +620,8 @@ namespace TennisDB
                 }
             });
 
-            return new Tuple<double, double>(bpMadeSum / bpWonSum, bpSavedSum / bpFacedSum);
+            return new Tuple<double, double>(bpWonSum > 0 ? bpMadeSum / bpWonSum : 0,
+               bpFacedSum>0 ? bpSavedSum / bpFacedSum : 0);
         }
 
         private double getDonutRatio(int id, CourtTypes court)
@@ -641,7 +658,7 @@ namespace TennisDB
                 }
             });
 
-            return donuts / this.playerStats[id].setsPlayed[court];
+            return this.playerStats[id].setsPlayed[court] > 0 ? donuts / this.playerStats[id].setsPlayed[court] : 0;
         }
 
         private double getFirstServeInRatio(int id, CourtTypes court)
@@ -682,7 +699,7 @@ namespace TennisDB
                 }
             });
 
-            return firstServerIn / svPoints;
+            return svPoints > 0 ? firstServerIn / svPoints : 0;
         }
 
         public List<TennisPlayer> execute()
@@ -940,7 +957,7 @@ namespace TennisDB
                 while (matchBySeason.Read() && counter < 10)
                 {
                     double winnerID = matchBySeason.GetDouble(0);
-                    if(winnerID == idPlayer1)
+                    if (winnerID == idPlayer1)
                     {
                         sumAllWinsPlayer1++;
                     }
