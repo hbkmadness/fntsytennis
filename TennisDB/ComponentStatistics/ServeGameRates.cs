@@ -10,9 +10,9 @@ namespace TennisDB.ComponentStatistics
     [Serializable]
     public class ServeGameRates
     {
-        public DefaultMap firstServeInRate;
-        public DefaultMap firstServeWinRate;
-        public DefaultMap secondServeWinRate;
+        public readonly DefaultMap firstServeInRate;
+        public readonly DefaultMap firstServeWinRate;
+        public readonly DefaultMap secondServeWinRate;
 
         public ServeGameRates(DefaultMap _firstServeInRate, DefaultMap _firstServeWinRate, DefaultMap _secondServeWinRate)
         {

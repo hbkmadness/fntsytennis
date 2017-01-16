@@ -10,8 +10,8 @@ namespace TennisDB.ComponentStatistics
     [Serializable]
     public class BreakPointsRates
     {
-        public DefaultMap bpWonRates;
-        public DefaultMap bpSavedRates;
+        public readonly DefaultMap bpWonRates;
+        public readonly DefaultMap bpSavedRates;
 
         public BreakPointsRates(DefaultMap _bpWonRates, DefaultMap _bpSavedRates)
         {

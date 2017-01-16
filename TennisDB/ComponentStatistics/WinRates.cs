@@ -8,8 +8,8 @@ namespace TennisDB.ComponentStatistics
 {
     [Serializable] public class WinRates
     {
-        public double defaultWinRate = 0;
-        public Dictionary<Enums.CourtTypes, double> winRates;
+        public readonly double defaultWinRate = 0;
+        public readonly Dictionary<Enums.CourtTypes, double> winRates;
 
         public WinRates(double _defaultWinRate, double grassWin = 0, double clayWin = 0, double hardWin = 0)
         {

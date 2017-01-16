@@ -10,11 +10,11 @@ namespace TennisDB.ComponentStatistics
     [Serializable]
     public class StraightSetsRates
     {
-        public DefaultMap straight3SetsWinsRate;
-        public DefaultMap straight3SetsLossRate;
+        public readonly DefaultMap straight3SetsWinsRate;
+        public readonly DefaultMap straight3SetsLossRate;
 
-        public DefaultMap straight5SetsWinsRate;
-        public DefaultMap straight5SetsLossRate;
+        public readonly DefaultMap straight5SetsWinsRate;
+        public readonly DefaultMap straight5SetsLossRate;
 
         public StraightSetsRates(DefaultMap _straight3SetsWinsRate, DefaultMap _straight3SetsLossRate,
             DefaultMap _straight5SetsWinsRate, DefaultMap _straight5SetsLossRate)

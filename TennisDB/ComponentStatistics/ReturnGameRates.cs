@@ -10,8 +10,8 @@ namespace TennisDB.ComponentStatistics
     [Serializable]
     public class ReturnGameRates
     {
-        public DefaultMap firstServeReturnedWinRate;
-        public DefaultMap secondServeReturnedWinRate;
+        public readonly DefaultMap firstServeReturnedWinRate;
+        public readonly DefaultMap secondServeReturnedWinRate;
 
         public ReturnGameRates(DefaultMap _firstServeReturnedWinRate, DefaultMap _secondServeReturnedWinRate)
         {

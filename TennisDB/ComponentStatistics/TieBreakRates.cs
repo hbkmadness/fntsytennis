@@ -10,8 +10,8 @@ namespace TennisDB.ComponentStatistics
     [Serializable]
     public class TieBreakRates
     {
-        public DefaultMap tieBreakRatio;
-        public DefaultMap tieBreakWinRatio;
+        public readonly DefaultMap tieBreakRatio;
+        public readonly DefaultMap tieBreakWinRatio;
 
         public TieBreakRates(DefaultMap _tieBreakRatio, DefaultMap _tieBreakWinRatio)
         {

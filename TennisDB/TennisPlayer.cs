@@ -7,23 +7,23 @@ namespace TennisDB
     using DefaultMap = Dictionary<Enums.CourtTypes, double>;
     [Serializable] public class TennisPlayer
     {
-        public int id = 0;
-        public double price = 0;
-        public double formAtBeginningOfTournament = 0.8;
+        public readonly int id = 0;
+        public readonly double price = 0;
+        public readonly double formAtBeginningOfTournament = 0.8;
 
-        public WinRates winRates = new WinRates(0);
+        public readonly WinRates winRates = new WinRates(0);
 
-        public StraightSetsRates straightSets;
-        public GamesNumberRates gamesNumbers;
+        public readonly StraightSetsRates straightSets;
+        public readonly GamesNumberRates gamesNumbers;
 
-        public SetAvrgs setAvrgs;
+        public readonly SetAvrgs setAvrgs;
 
-        public TieBreakRates tieBreakRates;
+        public readonly TieBreakRates tieBreakRates;
 
-        public ServeGameRates serveGameRates;
-        public ReturnGameRates returnGamesRates;
+        public readonly ServeGameRates serveGameRates;
+        public readonly ReturnGameRates returnGamesRates;
 
-        public BreakPointsRates breakPointsRates;
+        public readonly BreakPointsRates breakPointsRates;
 
         public TennisPlayer(int _id, double _price, WinRates _wrs, StraightSetsRates _straightSets, GamesNumberRates _gamesNumbers, TieBreakRates _tieBreakRates,
             SetAvrgs _setAvrgs, ServeGameRates _serveGameRates, ReturnGameRates _returnGamesRates, BreakPointsRates _breaksPointsRates, double _formAtBeginningOfTournament = 0.8)

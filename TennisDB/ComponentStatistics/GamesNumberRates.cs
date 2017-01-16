@@ -10,9 +10,9 @@ namespace TennisDB.ComponentStatistics
     [Serializable]
     public class GamesNumberRates
     {
-        public DefaultMap donutLossRate;
-        public DefaultMap opponentWins4GamesInOneSetRate;
-        public DefaultMap winMoreThan4GamesInOneSetWhenLostRate;
+        public readonly DefaultMap donutLossRate;
+        public readonly DefaultMap opponentWins4GamesInOneSetRate;
+        public readonly DefaultMap winMoreThan4GamesInOneSetWhenLostRate;
 
         public GamesNumberRates(DefaultMap _donutLossRate, DefaultMap _opponentWins4GamesInOneSetRate, DefaultMap _winMoreThan4GamesInOneSetWhenLostRate)
         {

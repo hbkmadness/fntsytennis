@@ -11,12 +11,12 @@ namespace TennisDB.ComponentStatistics
     //All numbers here are the number of the stats average per set
     public class SetAvrgs
     {
-        public DefaultMap pointsServed;
-        public DefaultMap aces;
-        public DefaultMap doubleFaults;
+        public readonly DefaultMap pointsServed;
+        public readonly DefaultMap aces;
+        public readonly DefaultMap doubleFaults;
 
-        public DefaultMap bpMade;
-        public DefaultMap bpFaced;
+        public readonly DefaultMap bpMade;
+        public readonly DefaultMap bpFaced;
 
         public SetAvrgs(DefaultMap _pointsServed, DefaultMap _aces, DefaultMap _doubleFaults,
             DefaultMap _bpMade, DefaultMap _bpFaced)
