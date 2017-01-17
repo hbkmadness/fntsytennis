@@ -28,7 +28,7 @@ namespace TennisDB
         public readonly SetBySetStats setBySetStats;
 
         public TennisPlayer(int _id, double _price, WinRates _wrs, StraightSetsRates _straightSets, GamesNumberRates _gamesNumbers, TieBreakRates _tieBreakRates,
-            SetAvrgs _setAvrgs, ServeGameRates _serveGameRates, ReturnGameRates _returnGamesRates, BreakPointsRates _breaksPointsRates, SetBySetStats _setBySetStats = null,
+            SetAvrgs _setAvrgs, ServeGameRates _serveGameRates, ReturnGameRates _returnGamesRates, BreakPointsRates _breaksPointsRates, SetBySetStats _setBySetStats,
             double _formAtBeginningOfTournament = 0.8)
         {
             this.id = _id;

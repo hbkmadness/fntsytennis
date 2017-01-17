@@ -238,7 +238,9 @@ namespace TennisDB
             courts.ForEach((courtType) =>
             {
                 List<SqlDataReader> all3SetsMatches = this.executeQuery(String.Format(querry, "{0}", courtTypesKeys[courtType]));
-                Dictionary<string, Tuple<int, int>> matchesProgress = new Dictionary<string, Tuple<int, int>>();
+                //Key the type of progress in winning sets
+                //Tuple Item1: sets won in this situation, Item2: sets played in this situation
+                Dictionary<string, Tuple<double, double>> matchesProgress = new Dictionary<string, Tuple<double, double>>();
 
                 Func<int, List<string>> keyFactory = null;
                 keyFactory = new Func<int, List<string>>((count) =>
@@ -247,18 +249,14 @@ namespace TennisDB
                     {
                         return new List<string>() { "" };
                     }
-                    if (count == 1)
-                    {
-                        return new List<string>() { "True", "False" };
-                    }
                     else
                     {
                         List<string> allCombs = new List<string>();
                         keyFactory(count - 1).ForEach((comb) =>
                         {
-                            matchesProgress.Add(comb, new Tuple<int, int>(0, 0));
-                            allCombs.Add("True-" + comb);
-                            allCombs.Add("False-" + comb);
+                            matchesProgress.Add(comb, new Tuple<double, double>(0, 0));
+                            allCombs.Add((comb =="" ? "True" : "True-") + comb);
+                            allCombs.Add((comb == "" ? "False" : "False-") + comb);
                         });
 
                         return allCombs;
@@ -304,20 +302,31 @@ namespace TennisDB
                         //for each set increment the needed counters
                         foreach (var set in result)
                         {
-                            for(int i = 1; i <= set.Key; i++)
+                            if (set.Value.Item1 != -1)
                             {
+                                string keyToThisMoment = "";
+                                for (int i = 1; i < set.Key; i++)
+                                {
+                                    keyToThisMoment += setsWinFlags[i].ToString() + (i == set.Key - 1 ? "" : "-");
+                                }
+                                double winsInThisSituation = matchesProgress[keyToThisMoment].Item1;
+                                if (setsWinFlags[set.Key])
+                                {
+                                    winsInThisSituation++;
+                                }
 
+                                matchesProgress[keyToThisMoment] = new Tuple<double, double>(winsInThisSituation, matchesProgress[keyToThisMoment].Item2 + 1);
                             }
                         }
                     }
 
                 });
 
-                //stats.match3SetsWinFirstSetRate[courtType] = matchCount > 5 ? firstSetWins / matchCount : -1;
-                //stats.match3SetsWinSecondSet_1_0_Rate[courtType] = matchCount_1_0 > 5 ? secondSetWinAfter_1_0 / matchCount_1_0 : -1;
-                //stats.match3SetsWinSecondSet_0_1_Rate[courtType] = matchCount_0_1 > 5 ? secondSetWinAfter_0_1 / matchCount_0_1 : -1;
-                //stats.match3SetsWinThirdSet_1_0_Rate[courtType] = matchCount_1_0_3sets > 5 ? thirdSetWinAfter_1_0 / matchCount_1_0_3sets : -1;
-                //stats.match3SetsWinThirdSet_0_1_Rate[courtType] = matchCount_0_1_3sets > 5 ? thirdSetWinAfter_0_1 / matchCount_0_1_3sets : -1;
+                stats.match3SetsWinFirstSetRate[courtType] = matchesProgress[""].Item2 > 5 ? matchesProgress[""].Item1 / matchesProgress[""].Item2 : -1;
+                stats.match3SetsWinSecondSet_1_0_Rate[courtType] = matchesProgress["True"].Item2 > 5 ? matchesProgress["True"].Item1 / matchesProgress["True"].Item2 : -1;
+                stats.match3SetsWinSecondSet_0_1_Rate[courtType] = matchesProgress["False"].Item2 > 5 ? matchesProgress["False"].Item1 / matchesProgress["False"].Item2 : -1;
+                stats.match3SetsWinThirdSet_1_0_Rate[courtType] = matchesProgress["True-False"].Item2 > 5 ? matchesProgress["True-False"].Item1 / matchesProgress["True-False"].Item2 : -1;
+                stats.match3SetsWinThirdSet_0_1_Rate[courtType] = matchesProgress["False-True"].Item2 > 5 ? matchesProgress["False-True"].Item1 / matchesProgress["False-True"].Item2 : -1;
 
             });
 
@@ -336,46 +345,38 @@ namespace TennisDB
 
             courts.ForEach((courtType) =>
             {
-                List<SqlDataReader> all3SetsMatches = this.executeQuery(String.Format(querry, "{0}", courtTypesKeys[courtType]), 9);
-                double matchCount = 0;
-                double firstSetWins = 0;
+                List<SqlDataReader> all5SetsMatches = this.executeQuery(String.Format(querry, "{0}", courtTypesKeys[courtType]), 9);
+                //Key the type of progress in winning sets
+                //Tuple Item1: sets won in this situation, Item2: sets played in this situation
+                Dictionary<string, Tuple<double, double>> matchesProgress = new Dictionary<string, Tuple<double, double>>();
 
-                double matchCount_1_0 = 0;
-                double secondSetWinAfter_1_0 = 0;
+                Func<int, List<string>> keyFactory = null;
+                keyFactory = new Func<int, List<string>>((count) =>
+                {
+                    if (count == 0)
+                    {
+                        return new List<string>() { "" };
+                    }
+                    else
+                    {
+                        List<string> allCombs = new List<string>();
+                        keyFactory(count - 1).ForEach((comb) =>
+                        {
+                            matchesProgress.Add(comb, new Tuple<double, double>(0, 0));
+                            allCombs.Add((comb == "" ? "True" : "True-") + comb);
+                            allCombs.Add((comb == "" ? "False" : "False-") + comb);
+                        });
 
-                double matchCount_0_1 = 0;
-                double secondSetWinAfter_0_1 = 0;
+                        return allCombs;
+                    }
+                });
+                keyFactory(5);
 
-                double matchCount_2_0 = 0;
-                double thirdSetWinAfter_2_0 = 0;
-
-                double matchCount_0_2 = 0;
-                double thirdSetWinAfter_0_2 = 0;
-
-                double matchCount_1_1 = 0;
-                double thirdSetWinAfter_1_1 = 0;
-
-                double matchCount_2_1 = 0;
-                double fourthSetWinAfter_2_1 = 0;
-
-                double matchCount_1_2 = 0;
-                double fourthSetWinAfter_1_2 = 0;
-
-                double matchCount5Sets = 0;
-                double fifthSetWins = 0;
-
-                double matchCount_2_0_5Sets = 0;
-                double fifthSetWinsAfter_2_0 = 0;
-
-                double matchCount_0_2_5Sets = 0;
-                double fifthSetWinsAfter_0_2 = 0;
-
-                all3SetsMatches.ForEach((matchesBySeason) =>
+                all5SetsMatches.ForEach((matchesBySeason) =>
                 {
                     //for each match
                     while (matchesBySeason.Read())
                     {
-                        matchCount++;
                         //get the score and winner id
                         String score = matchesBySeason.GetString(0);
                         double winnerId = matchesBySeason.GetDouble(1);
@@ -409,149 +410,70 @@ namespace TennisDB
                         //for each set increment the needed counters
                         foreach (var set in result)
                         {
-                            if (set.Key == 1)
+                            if (set.Value.Item1 != -1)
                             {
-                                if (set.Value.Item1 != -1 && setsWinFlags[set.Key])
+                                string keyToThisMoment = "";
+                                for (int i = 1; i < set.Key; i++)
                                 {
-                                    firstSetWins++;
+                                    keyToThisMoment += setsWinFlags[i].ToString() + (i == set.Key - 1 ? "" : "-");
                                 }
-                            }
-                            else if (set.Key == 2 && set.Value.Item1 != 1)
-                            {
+                                double winsInThisSituation = matchesProgress[keyToThisMoment].Item1;
                                 if (setsWinFlags[set.Key])
                                 {
-                                    if (setsWinFlags[1])
-                                    {
-                                        secondSetWinAfter_1_0++;
-                                        matchCount_1_0++;
-                                    }
-                                    else
-                                    {
-                                        secondSetWinAfter_0_1++;
-                                        matchCount_0_1++;
-                                    }
+                                    winsInThisSituation++;
                                 }
-                                else
-                                {
-                                    if (setsWinFlags[1])
-                                    {
-                                        matchCount_1_0++;
-                                    }
-                                    else
-                                    {
-                                        matchCount_0_1++;
-                                    }
-                                }
-                            }
-                            else if (set.Key == 3 && set.Value.Item1 != 1)
-                            {
-                                if (setsWinFlags[set.Key])
-                                {
-                                    if (setsWinFlags[1] && setsWinFlags[2])
-                                    {
-                                        thirdSetWinAfter_2_0++;
-                                        matchCount_2_0++;
-                                    }
-                                    else if (!setsWinFlags[1] && !setsWinFlags[2])
-                                    {
-                                        thirdSetWinAfter_0_2++;
-                                        matchCount_0_2++;
-                                    }
-                                    else
-                                    {
-                                        thirdSetWinAfter_1_1++;
-                                        matchCount_1_1++;
-                                    }
-                                }
-                                else
-                                {
-                                    if (setsWinFlags[1] && setsWinFlags[2])
-                                    {
-                                        matchCount_2_0++;
-                                    }
-                                    else if (!setsWinFlags[1] && !setsWinFlags[2])
-                                    {
-                                        matchCount_0_2++;
-                                    }
-                                    else
-                                    {
-                                        matchCount_1_1++;
-                                    }
-                                }
-                            }
-                            else if (set.Key == 4 && set.Value.Item1 != 1)
-                            {
-                                if (setsWinFlags[set.Key])
-                                {
-                                    if (setsWinFlags[1] && setsWinFlags[2] || setsWinFlags[2] && setsWinFlags[3] || setsWinFlags[1] && setsWinFlags[3])
-                                    {
-                                        fourthSetWinAfter_2_1++;
-                                        matchCount_2_1++;
-                                    }
-                                    else
-                                    {
-                                        fourthSetWinAfter_1_2++;
-                                        matchCount_1_2++;
-                                    }
-                                }
-                                else
-                                {
-                                    if (setsWinFlags[1] && setsWinFlags[2] || setsWinFlags[2] && setsWinFlags[3] || setsWinFlags[1] && setsWinFlags[3])
-                                    {
-                                        matchCount_2_1++;
-                                    }
-                                    else
-                                    {
-                                        matchCount_1_2++;
-                                    }
-                                }
-                            }
-                            else if (set.Key == 5 && set.Value.Item1 != 1)
-                            {
-                                if (setsWinFlags[1] && setsWinFlags[2])
-                                {
-                                    fifthSetWinsAfter_2_0++;
-                                    matchCount_2_0_5Sets++;
-                                }
-                                else if (!setsWinFlags[1] && !setsWinFlags[2])
-                                {
-                                    fifthSetWinsAfter_0_2++;
-                                    matchCount_0_2_5Sets++;
-                                }
-                                else
-                                {
-                                    fifthSetWins++;
-                                    matchCount5Sets++;
-                                }
+
+                                matchesProgress[keyToThisMoment] = new Tuple<double, double>(winsInThisSituation, matchesProgress[keyToThisMoment].Item2 + 1);
                             }
                         }
                     }
 
                 });
 
-                stats.winFirstSet[courtType] = matchCount > 1 ? firstSetWins / matchCount : -1;
-                stats.winSecondSet_1_0[courtType] = matchCount_1_0 > 1 ? secondSetWinAfter_1_0 / matchCount_1_0 : -1;
-                stats.winSecondSet_0_1[courtType] = matchCount_0_1 > 1 ? secondSetWinAfter_0_1 / matchCount_0_1 : -1;
-                stats.winThirdSet_2_0[courtType] = matchCount_2_0 > 1 ? thirdSetWinAfter_2_0 / matchCount_2_0 : -1;
-                stats.winThirdSet_0_2[courtType] = matchCount_0_2 > 1 ? thirdSetWinAfter_0_2 / matchCount_0_2 : -1;
-                stats.winThirdSet_1_1[courtType] = matchCount_1_1 > 1 ? thirdSetWinAfter_1_1 / matchCount_1_1 : -1;
-                stats.winFourthSet_2_1[courtType] = matchCount_2_1 > 1 ? fourthSetWinAfter_2_1 / matchCount_2_1 : -1;
-                stats.winFourthSet_1_2[courtType] = matchCount_1_2 > 1 ? fourthSetWinAfter_1_2 / matchCount_1_2 : -1;
-                stats.winFifth_2_0[courtType] = matchCount_2_0_5Sets > 1 ? fifthSetWinsAfter_2_0 / matchCount_2_0_5Sets : -1;
-                stats.winFifth_0_2[courtType] = matchCount_0_2_5Sets > 1 ? fifthSetWinsAfter_0_2 / matchCount_0_2_5Sets : -1;
-                stats.winFifth[courtType] = matchCount5Sets > 1 ? fifthSetWins / matchCount5Sets : -1;
+                //First sets combinations
+                stats.winFirstSet[courtType] = matchesProgress[""].Item2 > 1 ? matchesProgress[""].Item1 / matchesProgress[""].Item2 : -1;
+
+                //Second set combinations
+                stats.winSecondSet_1_0[courtType] = matchesProgress["True"].Item2 > 1 ? matchesProgress["True"].Item1 / matchesProgress["True"].Item2 : -1;
+                stats.winSecondSet_0_1[courtType] = matchesProgress["False"].Item2 > 1 ? matchesProgress["False"].Item1 / matchesProgress["False"].Item2 : -1;
+
+                //Third set combinations
+                stats.winThirdSet_2_0[courtType] = matchesProgress["True-True"].Item2 > 1 ? matchesProgress["True-True"].Item1 / matchesProgress["True-True"].Item2 : -1;
+                stats.winThirdSet_0_2[courtType] = matchesProgress["False-False"].Item2 > 1 ? matchesProgress["False-False"].Item1 / matchesProgress["False-False"].Item2 : -1;
+                stats.winThirdSet_1_1[courtType] = (matchesProgress["True-False"].Item2 + matchesProgress["False-True"].Item2) > 1 ? 
+                (matchesProgress["True-False"].Item1 + matchesProgress["False-True"].Item1) / (matchesProgress["True-False"].Item2 + matchesProgress["False-True"].Item2) : -1;
+
+                //Forth set combinations
+                stats.winFourthSet_2_1[courtType] = (matchesProgress["True-False-True"].Item2 + matchesProgress["True-True-False"].Item2 + matchesProgress["False-True-True"].Item2) > 1 ?
+                (matchesProgress["True-False-True"].Item1 + matchesProgress["True-True-False"].Item1 + matchesProgress["False-True-True"].Item1) / (matchesProgress["True-False-True"].Item2 + matchesProgress["True-True-False"].Item2 + matchesProgress["False-True-True"].Item2) : -1;
+                stats.winFourthSet_1_2[courtType] = (matchesProgress["True-False-False"].Item2 + matchesProgress["False-True-False"].Item2 + matchesProgress["False-False-True"].Item2) > 1 ?
+                (matchesProgress["True-False-False"].Item1 + matchesProgress["False-True-False"].Item1 + matchesProgress["False-False-True"].Item1) / (matchesProgress["True-False-False"].Item2 + matchesProgress["False-True-False"].Item2 + matchesProgress["False-False-True"].Item2) : -1;
+
+                //Fifth set combinations
+                stats.winFifth_2_0[courtType] = matchesProgress["True-True-False-False"].Item2 > 1 ? matchesProgress["True-True-False-False"].Item1 / matchesProgress["True-True-False-False"].Item2 : -1;
+                stats.winFifth_0_2[courtType] = matchesProgress["False-False-True-True"].Item2 > 1 ? matchesProgress["False-False-True-True"].Item1 / matchesProgress["False-False-True-True"].Item2 : -1;
+
+                stats.winFifth[courtType] = (matchesProgress["True-True-False-False"].Item2 + matchesProgress["False-False-True-True"].Item2 +
+                matchesProgress["True-False-True-False"].Item2 + matchesProgress["True-False-False-True"].Item2 +
+                matchesProgress["False-True-True-False"].Item2 + matchesProgress["False-False-True-True"].Item2) > 1 ? 
+                (matchesProgress["True-True-False-False"].Item1 + matchesProgress["False-False-True-True"].Item1 +
+                matchesProgress["True-False-True-False"].Item1 + matchesProgress["True-False-False-True"].Item1 +
+                matchesProgress["False-True-True-False"].Item1 + matchesProgress["False-False-True-True"].Item1) / 
+                (matchesProgress["True-True-False-False"].Item2 + matchesProgress["False-False-True-True"].Item2 +
+                matchesProgress["True-False-True-False"].Item2 + matchesProgress["True-False-False-True"].Item2 +
+                matchesProgress["False-True-True-False"].Item2 + matchesProgress["False-False-True-True"].Item2) : -1;
 
             });
 
             return stats;
         }
 
-        public void getSetBySetStatsForOnePlayer(int id)
+        private SetBySetStats getSetBySetStatsForOnePlayer(int id)
         {
-            connection.Open();
             var setBySet3SetsMax = getSetBySetStats3SetsMax(String.Format("SELECT score, winner_id FROM {0} WHERE (winner_id = {1} OR loser_id = {1}) AND best_of = 3 AND surface = {2}", "{0}", id, "{1}"), id);
             var setBySet5SetsMax = getSetBySetStats5SetsMax(String.Format("SELECT score, winner_id FROM {0} WHERE (winner_id = {1} OR loser_id = {1}) AND best_of = 5 AND surface = {2}", "{0}", id, "{1}"), id);
-            connection.Close();
+
+            return new SetBySetStats(setBySet3SetsMax, setBySet5SetsMax);
         }
 
         //Returns a tuple of the rates that the player let the opponent wins at least 4 games when a sets is won or he wins 4 sets when loses
@@ -1231,8 +1153,8 @@ namespace TennisDB
 
                 playerReaded.Add(new TennisPlayer(playerID, 0, new WinRates(rates[3], rates[2], rates[0], rates[1]), new StraightSetsRates(straight3WinsRatesDic, straight3LosesRatesDic, straight5WinsRatesDic, straight5LosesRatesDic),
                     new GamesNumberRates(donutRatiosDic, letOpponentWin4GamesDic, win4GamesWhenLostSetDic), new TieBreakRates(tieBreakPlayRatioDic, tieBreakWinRatioDic), new SetAvrgs(pointsServedPerSetDic, acesAvrgPerSetDic, dfAvrgPerSetDic, bpMadePerSetDic, bpFacedPerSetDic),
-                    new ServeGameRates(firstServeInRatioDic, firstServeWinRatioDic, secondServeWinRatioDic), new ReturnGameRates(wonVsFirstServeRatiosDic, wonVsSecondServeRatiosDic), new BreakPointsRates(bpWonRatesDic, bpSavedRatesDic)
-                    ));
+                    new ServeGameRates(firstServeInRatioDic, firstServeWinRatioDic, secondServeWinRatioDic), new ReturnGameRates(wonVsFirstServeRatiosDic, wonVsSecondServeRatiosDic), new BreakPointsRates(bpWonRatesDic, bpSavedRatesDic),
+                    getSetBySetStatsForOnePlayer(playerID)));
             }
 
             connection.Close();
