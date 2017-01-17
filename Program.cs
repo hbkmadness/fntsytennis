@@ -116,7 +116,9 @@ namespace FantasyTennisGame
 
             var playersMales = (List<TennisDB.TennisPlayer>)bf.Deserialize(fsMales);
             var playersFemales = (List<TennisDB.TennisPlayer>)bf.Deserialize(fsFemales);
-
+            var p = new Bag();
+            var k = p.GetType().GetField("property").GetValue(p);
+            Console.WriteLine(p.GetType().GetProperty("property"));
             //-------------------------------------------------------------------------
 
             List<int> idsMales = new List<int> {

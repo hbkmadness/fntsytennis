@@ -9,6 +9,7 @@ namespace FantasyTennis
     class Bag
     {
         public List<BagItem> content;
+        public int property = 0;
 
         public Bag()
         {

@@ -13,6 +13,16 @@ namespace TennisDB.ComponentStatistics
         public readonly SetBySetStats3Sets max3SetsMatchStats;
         public readonly SetBySetStats5Sets max5SetsMatchStats;
 
+        public object this[string propertyName]
+        {
+            get
+            {
+                Type myType = typeof(SetBySetStats);
+                var myPropInfo = myType.GetField(propertyName);
+                return myPropInfo.GetValue(this);
+            }
+        }
+
         public SetBySetStats(SetBySetStats3Sets sbs3sets, SetBySetStats5Sets sbs5sets)
         {
             max3SetsMatchStats = sbs3sets;

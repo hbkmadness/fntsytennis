@@ -25,7 +25,17 @@ namespace TennisDB
 
         public readonly BreakPointsRates breakPointsRates;
 
-        public readonly SetBySetStats setBySetStats;
+        public SetBySetStats setBySetStats;
+
+        public object this[string propertyName]
+        {
+            get
+            {
+                Type myType = typeof(TennisPlayer);
+                var myPropInfo = myType.GetField(propertyName);
+                return myPropInfo.GetValue(this);
+            }
+        }
 
         public TennisPlayer(int _id, double _price, WinRates _wrs, StraightSetsRates _straightSets, GamesNumberRates _gamesNumbers, TieBreakRates _tieBreakRates,
             SetAvrgs _setAvrgs, ServeGameRates _serveGameRates, ReturnGameRates _returnGamesRates, BreakPointsRates _breaksPointsRates, SetBySetStats _setBySetStats,

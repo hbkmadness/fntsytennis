@@ -22,6 +22,16 @@ namespace TennisDB.ComponentStatistics
         public DefaultMap winFifth_0_2;
         public DefaultMap winFifth;
 
+        public object this[string propertyName]
+        {
+            get
+            {
+                Type myType = typeof(SetBySetStats5Sets);
+                var myPropInfo = myType.GetField(propertyName);
+                return myPropInfo.GetValue(this);
+            }
+        }
+
         public SetBySetStats5Sets()
         {
         winFirstSet= new DefaultMap();

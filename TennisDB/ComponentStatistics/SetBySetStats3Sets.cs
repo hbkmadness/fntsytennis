@@ -16,6 +16,16 @@ namespace TennisDB.ComponentStatistics
         public DefaultMap match3SetsWinThirdSet_1_0_Rate;
         public DefaultMap match3SetsWinThirdSet_0_1_Rate;
 
+        public object this[string propertyName]
+        {
+            get
+            {
+                Type myType = typeof(SetBySetStats3Sets);
+                var myPropInfo = myType.GetField(propertyName);
+                return myPropInfo.GetValue(this);
+            }
+        }
+
         public SetBySetStats3Sets()
         {
             match3SetsWinFirstSetRate = new DefaultMap();
