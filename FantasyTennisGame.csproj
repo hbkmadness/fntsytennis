@@ -68,12 +68,15 @@
     <Compile Include="FantasyTennis\BagItemsStorage.cs" />
     <Compile Include="FantasyTennis\MatchSimulatorSetBySet.cs" />
     <Compile Include="TennisDB\ComponentStatistics\BreakPointsRates.cs" />
+    <Compile Include="TennisDB\ComponentStatistics\SetBySetStats.cs" />
+    <Compile Include="TennisDB\ComponentStatistics\SetBySetStats5Sets.cs" />
     <Compile Include="TennisDB\Enums\CourtTypes.cs" />
     <Compile Include="TennisDB\DataReader.cs" />
     <Compile Include="TennisDB\ComponentStatistics\GamesNumberRates.cs" />
     <Compile Include="TennisDB\ComponentStatistics\ReturnGameRates.cs" />
     <Compile Include="TennisDB\ComponentStatistics\ServeGameRates.cs" />
     <Compile Include="TennisDB\ComponentStatistics\SetAvrgs.cs" />
+    <Compile Include="TennisDB\ComponentStatistics\SetBySetStats3Sets.cs" />
     <Compile Include="TennisDB\StaticData\DefaultTableKeys.cs" />
     <Compile Include="FantasyTennis\DrawsTree.cs" />
     <Compile Include="FantasyTennis\Enums\FantasyGames.cs" />

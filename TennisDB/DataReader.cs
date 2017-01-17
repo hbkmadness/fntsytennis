@@ -224,6 +224,334 @@ namespace TennisDB
             });
 
             return matchCount > 0 ? straightWinsCount / matchCount : 0;
+
+        }
+
+        //Returns set by set stats for both 3 sets max matches if there is not enough data for some stats the return value is -1
+        //The querry argument is to identify which matches should be taken
+        //The mainID argument is the id of the player that the stats are going to be calculated for
+        private SetBySetStats3Sets getSetBySetStats3SetsMax(string querry, int mainID)
+        {
+            List<Enums.CourtTypes> courts = new List<Enums.CourtTypes>() { Enums.CourtTypes.CLAY, Enums.CourtTypes.GRASS, Enums.CourtTypes.HARD };
+            SetBySetStats3Sets stats = new SetBySetStats3Sets();
+
+            courts.ForEach((courtType) =>
+            {
+                List<SqlDataReader> all3SetsMatches = this.executeQuery(String.Format(querry, "{0}", courtTypesKeys[courtType]));
+                Dictionary<string, Tuple<int, int>> matchesProgress = new Dictionary<string, Tuple<int, int>>();
+
+                Func<int, List<string>> keyFactory = null;
+                keyFactory = new Func<int, List<string>>((count) =>
+                {
+                    if (count == 0)
+                    {
+                        return new List<string>() { "" };
+                    }
+                    if (count == 1)
+                    {
+                        return new List<string>() { "True", "False" };
+                    }
+                    else
+                    {
+                        List<string> allCombs = new List<string>();
+                        keyFactory(count - 1).ForEach((comb) =>
+                        {
+                            matchesProgress.Add(comb, new Tuple<int, int>(0, 0));
+                            allCombs.Add("True-" + comb);
+                            allCombs.Add("False-" + comb);
+                        });
+
+                        return allCombs;
+                    }
+                });
+                keyFactory(3);
+
+                all3SetsMatches.ForEach((matchesBySeason) =>
+                {
+                    //for each match
+                    while (matchesBySeason.Read())
+                    {
+                        //get the score and winner id
+                        String score = matchesBySeason.GetString(0);
+                        double winnerId = matchesBySeason.GetDouble(1);
+
+                        //get the result set by set
+                        var result = getMatchResultSetBySet(score);
+                        var currentPlayerWinner = true;
+
+                        //check if the current player is the winner so you know exactly which of the 2 numbers in the result of every set
+                        //is the number of games won by the current player
+                        if (winnerId != mainID)
+                        {
+                            currentPlayerWinner = false;
+                        }
+
+                        bool[] setsWinFlags = { false, false, false, false };
+
+                        //Set all the flags depending of which sets the current player has won in the match
+                        foreach (var entry in result)
+                        {
+                            if (entry.Value.Item1 > entry.Value.Item2 && currentPlayerWinner)
+                            {
+                                setsWinFlags[entry.Key] = true;
+                            }
+                            else if (entry.Value.Item2 > entry.Value.Item1 && !currentPlayerWinner)
+                            {
+                                setsWinFlags[entry.Key] = true;
+                            }
+                        }
+
+                        //for each set increment the needed counters
+                        foreach (var set in result)
+                        {
+                            for(int i = 1; i <= set.Key; i++)
+                            {
+
+                            }
+                        }
+                    }
+
+                });
+
+                //stats.match3SetsWinFirstSetRate[courtType] = matchCount > 5 ? firstSetWins / matchCount : -1;
+                //stats.match3SetsWinSecondSet_1_0_Rate[courtType] = matchCount_1_0 > 5 ? secondSetWinAfter_1_0 / matchCount_1_0 : -1;
+                //stats.match3SetsWinSecondSet_0_1_Rate[courtType] = matchCount_0_1 > 5 ? secondSetWinAfter_0_1 / matchCount_0_1 : -1;
+                //stats.match3SetsWinThirdSet_1_0_Rate[courtType] = matchCount_1_0_3sets > 5 ? thirdSetWinAfter_1_0 / matchCount_1_0_3sets : -1;
+                //stats.match3SetsWinThirdSet_0_1_Rate[courtType] = matchCount_0_1_3sets > 5 ? thirdSetWinAfter_0_1 / matchCount_0_1_3sets : -1;
+
+            });
+
+            return stats;
+        }
+
+        /*
+         * Returns set by set stats for both 5 sets max matches if there is not enough data for some stats the return value is -1
+         * The querry argument is to identify which matches should be taken
+         * The mainID argument is the id of the player that the stats are going to be calculated for
+         */
+        private SetBySetStats5Sets getSetBySetStats5SetsMax(string querry, int mainID)
+        {
+            List<Enums.CourtTypes> courts = new List<Enums.CourtTypes>() { Enums.CourtTypes.CLAY, Enums.CourtTypes.GRASS, Enums.CourtTypes.HARD };
+            SetBySetStats5Sets stats = new SetBySetStats5Sets();
+
+            courts.ForEach((courtType) =>
+            {
+                List<SqlDataReader> all3SetsMatches = this.executeQuery(String.Format(querry, "{0}", courtTypesKeys[courtType]), 9);
+                double matchCount = 0;
+                double firstSetWins = 0;
+
+                double matchCount_1_0 = 0;
+                double secondSetWinAfter_1_0 = 0;
+
+                double matchCount_0_1 = 0;
+                double secondSetWinAfter_0_1 = 0;
+
+                double matchCount_2_0 = 0;
+                double thirdSetWinAfter_2_0 = 0;
+
+                double matchCount_0_2 = 0;
+                double thirdSetWinAfter_0_2 = 0;
+
+                double matchCount_1_1 = 0;
+                double thirdSetWinAfter_1_1 = 0;
+
+                double matchCount_2_1 = 0;
+                double fourthSetWinAfter_2_1 = 0;
+
+                double matchCount_1_2 = 0;
+                double fourthSetWinAfter_1_2 = 0;
+
+                double matchCount5Sets = 0;
+                double fifthSetWins = 0;
+
+                double matchCount_2_0_5Sets = 0;
+                double fifthSetWinsAfter_2_0 = 0;
+
+                double matchCount_0_2_5Sets = 0;
+                double fifthSetWinsAfter_0_2 = 0;
+
+                all3SetsMatches.ForEach((matchesBySeason) =>
+                {
+                    //for each match
+                    while (matchesBySeason.Read())
+                    {
+                        matchCount++;
+                        //get the score and winner id
+                        String score = matchesBySeason.GetString(0);
+                        double winnerId = matchesBySeason.GetDouble(1);
+
+                        //get the result set by set
+                        var result = getMatchResultSetBySet(score);
+                        var currentPlayerWinner = true;
+
+                        //check if the current player is the winner so you know exactly which of the 2 numbers in the result of every set
+                        //is the number of games won by the current player
+                        if (winnerId != mainID)
+                        {
+                            currentPlayerWinner = false;
+                        }
+
+                        bool[] setsWinFlags = { false, false, false, false, false, false };
+
+                        //Set all the flags depending of which sets the current player has won in the match
+                        foreach (var entry in result)
+                        {
+                            if (entry.Value.Item1 > entry.Value.Item2 && currentPlayerWinner)
+                            {
+                                setsWinFlags[entry.Key] = true;
+                            }
+                            else if (entry.Value.Item2 > entry.Value.Item1 && !currentPlayerWinner)
+                            {
+                                setsWinFlags[entry.Key] = true;
+                            }
+                        }
+
+                        //for each set increment the needed counters
+                        foreach (var set in result)
+                        {
+                            if (set.Key == 1)
+                            {
+                                if (set.Value.Item1 != -1 && setsWinFlags[set.Key])
+                                {
+                                    firstSetWins++;
+                                }
+                            }
+                            else if (set.Key == 2 && set.Value.Item1 != 1)
+                            {
+                                if (setsWinFlags[set.Key])
+                                {
+                                    if (setsWinFlags[1])
+                                    {
+                                        secondSetWinAfter_1_0++;
+                                        matchCount_1_0++;
+                                    }
+                                    else
+                                    {
+                                        secondSetWinAfter_0_1++;
+                                        matchCount_0_1++;
+                                    }
+                                }
+                                else
+                                {
+                                    if (setsWinFlags[1])
+                                    {
+                                        matchCount_1_0++;
+                                    }
+                                    else
+                                    {
+                                        matchCount_0_1++;
+                                    }
+                                }
+                            }
+                            else if (set.Key == 3 && set.Value.Item1 != 1)
+                            {
+                                if (setsWinFlags[set.Key])
+                                {
+                                    if (setsWinFlags[1] && setsWinFlags[2])
+                                    {
+                                        thirdSetWinAfter_2_0++;
+                                        matchCount_2_0++;
+                                    }
+                                    else if (!setsWinFlags[1] && !setsWinFlags[2])
+                                    {
+                                        thirdSetWinAfter_0_2++;
+                                        matchCount_0_2++;
+                                    }
+                                    else
+                                    {
+                                        thirdSetWinAfter_1_1++;
+                                        matchCount_1_1++;
+                                    }
+                                }
+                                else
+                                {
+                                    if (setsWinFlags[1] && setsWinFlags[2])
+                                    {
+                                        matchCount_2_0++;
+                                    }
+                                    else if (!setsWinFlags[1] && !setsWinFlags[2])
+                                    {
+                                        matchCount_0_2++;
+                                    }
+                                    else
+                                    {
+                                        matchCount_1_1++;
+                                    }
+                                }
+                            }
+                            else if (set.Key == 4 && set.Value.Item1 != 1)
+                            {
+                                if (setsWinFlags[set.Key])
+                                {
+                                    if (setsWinFlags[1] && setsWinFlags[2] || setsWinFlags[2] && setsWinFlags[3] || setsWinFlags[1] && setsWinFlags[3])
+                                    {
+                                        fourthSetWinAfter_2_1++;
+                                        matchCount_2_1++;
+                                    }
+                                    else
+                                    {
+                                        fourthSetWinAfter_1_2++;
+                                        matchCount_1_2++;
+                                    }
+                                }
+                                else
+                                {
+                                    if (setsWinFlags[1] && setsWinFlags[2] || setsWinFlags[2] && setsWinFlags[3] || setsWinFlags[1] && setsWinFlags[3])
+                                    {
+                                        matchCount_2_1++;
+                                    }
+                                    else
+                                    {
+                                        matchCount_1_2++;
+                                    }
+                                }
+                            }
+                            else if (set.Key == 5 && set.Value.Item1 != 1)
+                            {
+                                if (setsWinFlags[1] && setsWinFlags[2])
+                                {
+                                    fifthSetWinsAfter_2_0++;
+                                    matchCount_2_0_5Sets++;
+                                }
+                                else if (!setsWinFlags[1] && !setsWinFlags[2])
+                                {
+                                    fifthSetWinsAfter_0_2++;
+                                    matchCount_0_2_5Sets++;
+                                }
+                                else
+                                {
+                                    fifthSetWins++;
+                                    matchCount5Sets++;
+                                }
+                            }
+                        }
+                    }
+
+                });
+
+                stats.winFirstSet[courtType] = matchCount > 1 ? firstSetWins / matchCount : -1;
+                stats.winSecondSet_1_0[courtType] = matchCount_1_0 > 1 ? secondSetWinAfter_1_0 / matchCount_1_0 : -1;
+                stats.winSecondSet_0_1[courtType] = matchCount_0_1 > 1 ? secondSetWinAfter_0_1 / matchCount_0_1 : -1;
+                stats.winThirdSet_2_0[courtType] = matchCount_2_0 > 1 ? thirdSetWinAfter_2_0 / matchCount_2_0 : -1;
+                stats.winThirdSet_0_2[courtType] = matchCount_0_2 > 1 ? thirdSetWinAfter_0_2 / matchCount_0_2 : -1;
+                stats.winThirdSet_1_1[courtType] = matchCount_1_1 > 1 ? thirdSetWinAfter_1_1 / matchCount_1_1 : -1;
+                stats.winFourthSet_2_1[courtType] = matchCount_2_1 > 1 ? fourthSetWinAfter_2_1 / matchCount_2_1 : -1;
+                stats.winFourthSet_1_2[courtType] = matchCount_1_2 > 1 ? fourthSetWinAfter_1_2 / matchCount_1_2 : -1;
+                stats.winFifth_2_0[courtType] = matchCount_2_0_5Sets > 1 ? fifthSetWinsAfter_2_0 / matchCount_2_0_5Sets : -1;
+                stats.winFifth_0_2[courtType] = matchCount_0_2_5Sets > 1 ? fifthSetWinsAfter_0_2 / matchCount_0_2_5Sets : -1;
+                stats.winFifth[courtType] = matchCount5Sets > 1 ? fifthSetWins / matchCount5Sets : -1;
+
+            });
+
+            return stats;
+        }
+
+        public void getSetBySetStatsForOnePlayer(int id)
+        {
+            connection.Open();
+            var setBySet3SetsMax = getSetBySetStats3SetsMax(String.Format("SELECT score, winner_id FROM {0} WHERE (winner_id = {1} OR loser_id = {1}) AND best_of = 3 AND surface = {2}", "{0}", id, "{1}"), id);
+            var setBySet5SetsMax = getSetBySetStats5SetsMax(String.Format("SELECT score, winner_id FROM {0} WHERE (winner_id = {1} OR loser_id = {1}) AND best_of = 5 AND surface = {2}", "{0}", id, "{1}"), id);
+            connection.Close();
         }
 
         //Returns a tuple of the rates that the player let the opponent wins at least 4 games when a sets is won or he wins 4 sets when loses
@@ -296,8 +624,8 @@ namespace TennisDB
                 }
             });
 
-            return new Tuple<double, double>(setsWonCount>0 ?setsLetOpponentHave4Games / setsWonCount : 0,
-                setsLostCount>0? setsWonAtLeast4Games / setsLostCount : 0);
+            return new Tuple<double, double>(setsWonCount > 0 ? setsLetOpponentHave4Games / setsWonCount : 0,
+                setsLostCount > 0 ? setsWonAtLeast4Games / setsLostCount : 0);
         }
 
         //Returns a tuple with
@@ -353,7 +681,7 @@ namespace TennisDB
             this.playerStats[id].setsPlayed[court] = allSetsPlayed;
 
             return new Tuple<double, double>(allSetsPlayed > 0 ? tieBreaksPlayed / allSetsPlayed : 0,
-               tieBreaksPlayed>0 ? tieBreaksWon / tieBreaksPlayed : 0);
+               tieBreaksPlayed > 0 ? tieBreaksWon / tieBreaksPlayed : 0);
         }
 
         //Returns the avrg per set number for specific value key from the table. Used for aces, doublefaults and etc.
@@ -458,7 +786,7 @@ namespace TennisDB
             });
 
             return new Tuple<double, double>(firstServesSum > 0 ? firstServesWonSum / firstServesSum : 0,
-                firstServesPlayedAgaintsSum>0 ? firstServesPlayedAgaintsWonSum / firstServesPlayedAgaintsSum : 0);
+                firstServesPlayedAgaintsSum > 0 ? firstServesPlayedAgaintsWonSum / firstServesPlayedAgaintsSum : 0);
         }
 
         //The same as for the first serv but for the second. There is some difference in the query.
@@ -518,8 +846,8 @@ namespace TennisDB
                 }
             });
 
-            return new Tuple<double, double>(secondServesSum>0? secondServesWonSum / secondServesSum : 0,
-                secondServesPlayedAgaintsSum>0? secondServesPlayedAgaintsWonSum / secondServesPlayedAgaintsSum : 0);
+            return new Tuple<double, double>(secondServesSum > 0 ? secondServesWonSum / secondServesSum : 0,
+                secondServesPlayedAgaintsSum > 0 ? secondServesPlayedAgaintsWonSum / secondServesPlayedAgaintsSum : 0);
         }
 
         //Returns how much break points per set avrgs
@@ -618,7 +946,7 @@ namespace TennisDB
             });
 
             return new Tuple<double, double>(bpWonSum > 0 ? bpMadeSum / bpWonSum : 0,
-               bpFacedSum>0 ? bpSavedSum / bpFacedSum : 0);
+               bpFacedSum > 0 ? bpSavedSum / bpFacedSum : 0);
         }
 
         private double getDonutRatio(int id, Enums.CourtTypes court)
@@ -902,7 +1230,7 @@ namespace TennisDB
                 };
 
                 playerReaded.Add(new TennisPlayer(playerID, 0, new WinRates(rates[3], rates[2], rates[0], rates[1]), new StraightSetsRates(straight3WinsRatesDic, straight3LosesRatesDic, straight5WinsRatesDic, straight5LosesRatesDic),
-                    new GamesNumberRates(donutRatiosDic, letOpponentWin4GamesDic, win4GamesWhenLostSetDic), new TieBreakRates(tieBreakPlayRatioDic, tieBreakWinRatioDic),new SetAvrgs(pointsServedPerSetDic, acesAvrgPerSetDic, dfAvrgPerSetDic, bpMadePerSetDic, bpFacedPerSetDic), 
+                    new GamesNumberRates(donutRatiosDic, letOpponentWin4GamesDic, win4GamesWhenLostSetDic), new TieBreakRates(tieBreakPlayRatioDic, tieBreakWinRatioDic), new SetAvrgs(pointsServedPerSetDic, acesAvrgPerSetDic, dfAvrgPerSetDic, bpMadePerSetDic, bpFacedPerSetDic),
                     new ServeGameRates(firstServeInRatioDic, firstServeWinRatioDic, secondServeWinRatioDic), new ReturnGameRates(wonVsFirstServeRatiosDic, wonVsSecondServeRatiosDic), new BreakPointsRates(bpWonRatesDic, bpSavedRatesDic)
                     ));
             }

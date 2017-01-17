@@ -61,6 +61,29 @@ namespace FantasyTennisGame
             return new List<int>(idsArray);
         }
 
+        static List<string> combinationsOfBooleansIntoStrings(int count)
+        {
+            if(count == 0)
+            {
+                return new List<string>() { "" };
+            }
+            if(count == 1)
+            {
+                return new List<string>() { "true", "false" };
+            }
+            else
+            {
+                List<string> allCombs = new List<string>();
+                combinationsOfBooleansIntoStrings(count - 1).ForEach((comb) =>
+                  {
+                      allCombs.Add("true-" + comb);
+                      allCombs.Add("false-" + comb);
+                  });
+
+                return allCombs;
+            }
+        }
+
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
@@ -74,25 +97,27 @@ namespace FantasyTennisGame
 
             //UNCOMMENT THIS SO YOU CAN MAKE A NEW PLAYER DB
 
-            //FileStream fsMales = new FileStream("playersStatsMales.dat", FileMode.Create);
-            //FileStream fsFemales = new FileStream("playersStatsFemales.dat", FileMode.Create);
+            FileStream fsMales = new FileStream("playersStatsMales.dat", FileMode.Create);
+            FileStream fsFemales = new FileStream("playersStatsFemales.dat", FileMode.Create);
 
-            //var playersMales = dbMales.execute();
-            //var playersFemales = dbFemales.execute();
+            dbMales.getSetBySetStatsForOnePlayer(104925);
 
-            //bf.Serialize(fsMales, playersMales);
-            //bf.Serialize(fsFemales, playersFemales);
+            var playersMales = dbMales.execute();
+            var playersFemales = dbFemales.execute();
+
+            bf.Serialize(fsMales, playersMales);
+            bf.Serialize(fsFemales, playersFemales);
 
             //----------------------------------------
 
 
             //COMMENT THIS WHEN YOU MAKE THE DB AND THEN JUST UNCOMMENT IT SO IT READS FROM THE FILE DIRECTLY
 
-            FileStream fsMales = new FileStream("playersStatsMales.dat", FileMode.Open);
-            FileStream fsFemales = new FileStream("playersStatsFemales.dat", FileMode.Open);
+            //FileStream fsMales = new FileStream("playersStatsMales.dat", FileMode.Open);
+            //FileStream fsFemales = new FileStream("playersStatsFemales.dat", FileMode.Open);
 
-            var playersMales = (List<TennisDB.TennisPlayer>)bf.Deserialize(fsMales);
-            var playersFemales = (List<TennisDB.TennisPlayer>)bf.Deserialize(fsFemales);
+            //var playersMales = (List<TennisDB.TennisPlayer>)bf.Deserialize(fsMales);
+            //var playersFemales = (List<TennisDB.TennisPlayer>)bf.Deserialize(fsFemales);
 
             //-------------------------------------------------------------------------
 

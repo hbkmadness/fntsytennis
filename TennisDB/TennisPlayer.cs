@@ -25,8 +25,11 @@ namespace TennisDB
 
         public readonly BreakPointsRates breakPointsRates;
 
+        public readonly SetBySetStats setBySetStats;
+
         public TennisPlayer(int _id, double _price, WinRates _wrs, StraightSetsRates _straightSets, GamesNumberRates _gamesNumbers, TieBreakRates _tieBreakRates,
-            SetAvrgs _setAvrgs, ServeGameRates _serveGameRates, ReturnGameRates _returnGamesRates, BreakPointsRates _breaksPointsRates, double _formAtBeginningOfTournament = 0.8)
+            SetAvrgs _setAvrgs, ServeGameRates _serveGameRates, ReturnGameRates _returnGamesRates, BreakPointsRates _breaksPointsRates, SetBySetStats _setBySetStats = null,
+            double _formAtBeginningOfTournament = 0.8)
         {
             this.id = _id;
             this.price = _price;
@@ -43,6 +46,7 @@ namespace TennisDB
             this.returnGamesRates = _returnGamesRates;
 
             this.breakPointsRates = _breaksPointsRates;
+            this.setBySetStats = _setBySetStats;
 
             this.formAtBeginningOfTournament = _formAtBeginningOfTournament;
     }
