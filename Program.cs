@@ -154,8 +154,8 @@ namespace FantasyTennisGame
             //Simulate all the tournaments
             for (int i = 0; i < tournamentsNumber; i++)
             {
-                Tournament tournament = new Tournament(dbMales, playersMales, listWithMatchesMales, 60, 36, TennisDB.Enums.CourtTypes.HARD, true, true);
-                Tournament tournamentFemales = new Tournament(dbFemales, playersFemales, listWithMatchesFemales, 60, 36, TennisDB.Enums.CourtTypes.HARD, true, false);
+                Tournament tournament = new Tournament(dbMales, playersMales, listWithMatchesMales, 60, 36, TennisDB.Enums.CourtTypes.HARD, true, true, FantasyTennis.Enums.MatchSimulatorType.SET_BY_SET);
+                Tournament tournamentFemales = new Tournament(dbFemales, playersFemales, listWithMatchesFemales, 60, 36, TennisDB.Enums.CourtTypes.HARD, true, false, FantasyTennis.Enums.MatchSimulatorType.SET_BY_SET);
 
                 List<Tournament> allTournaments = new List<Tournament>() {tournament, tournamentFemales };
                 allTournaments.ForEach((tourn) =>

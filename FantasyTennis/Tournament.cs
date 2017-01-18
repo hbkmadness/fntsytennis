@@ -28,6 +28,8 @@ namespace FantasyTennis
 
         public int currentRound = 1;
 
+        public Enums.MatchSimulatorType simulatorType;
+
         private TennisDB.H2HStats getH2HStats(int id1, int id2)
         {
             string key1 = String.Format("{0},{1},{2}", id1, id2, courtType);
@@ -59,10 +61,15 @@ namespace FantasyTennis
             return count;
         }
 
-        private MatchResult simulateMatch(TennisDB.TennisPlayer p1, TennisDB.TennisPlayer p2, Enums.MatchSimulatorType simulator)
+        private MatchResult simulateMatch(TennisDB.TennisPlayer p1, TennisDB.TennisPlayer p2)
         {
-            switch (simulator)
+            switch (this.simulatorType)
             {
+                case Enums.MatchSimulatorType.SET_BY_SET:
+                    {
+                        return new MatchSimulatorSetBySet(p1,p2, this.courtType, this.grandSlam, this.males).simulateMatch();
+                    }
+
                 default:
                     {
                         return new MatchSimulator(p1, p2, this.getH2HStats(p1.id, p2.id), this.courtType, this.grandSlam, this.males).simulateMatch();
@@ -72,7 +79,7 @@ namespace FantasyTennis
 
         public Tournament(TennisDB.DataReader _dataReader, List<TennisDB.TennisPlayer> _players, List<Tuple<TennisDB.TennisPlayer, TennisDB.TennisPlayer>> drawsList,
             int winPoints, int runUpPoints, TennisDB.Enums.CourtTypes court,
-            bool grandSlam, bool males)
+            bool grandSlam, bool males, Enums.MatchSimulatorType _simulatorType = Enums.MatchSimulatorType.DEFAULT)
         {
             this.dataReader = _dataReader;
 
@@ -96,6 +103,8 @@ namespace FantasyTennis
             {
                 playerPoints.Add(player.id, 0);
             });
+
+            this.simulatorType = _simulatorType;
         }
 
         public void simulateNextRound()
@@ -115,7 +124,7 @@ namespace FantasyTennis
                     return;
                 }
 
-                MatchResult result = this.simulateMatch(match.p1, match.p2, Enums.MatchSimulatorType.DEFAULT);
+                MatchResult result = this.simulateMatch(match.p1, match.p2);
                 match.setWinnerAndLoser(result.winnerID);
 
                 playerPoints[match.winner.id] += result.winnerPoints;

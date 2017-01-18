@@ -8,6 +8,7 @@ namespace FantasyTennis.Enums
 {
     enum MatchSimulatorType
     {
-        DEFAULT
+        DEFAULT,
+        SET_BY_SET
     }
 }
