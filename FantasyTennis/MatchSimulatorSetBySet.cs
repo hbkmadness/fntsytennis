@@ -46,6 +46,7 @@ namespace FantasyTennis
         {
             Dictionary<string, double> dic = new Dictionary<string, double>();
             double valueToBeAdded;
+
             if (grandSlam && males)
             {
                 valueToBeAdded = tryGetProperRating(p, "winFirstSet");
